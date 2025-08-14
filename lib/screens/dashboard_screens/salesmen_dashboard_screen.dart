@@ -56,9 +56,9 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
     return {
       "brand": TextEditingController(),
       "name": TextEditingController(),
-      "lastStock": TextEditingController(),
-      "stockIn": TextEditingController(),
-      "totalStock": TextEditingController(),
+      // "lastStock": TextEditingController(),
+      // "stockIn": TextEditingController(),
+      // "totalStock": TextEditingController(),
       "closingStock": TextEditingController(),
       "selectedBrand": null, // dropdown value
     };
@@ -122,9 +122,9 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
 
       controllers["brand"]?.text = rowData["brand"] ?? "";
       controllers["name"]?.text = rowData["name"] ?? "";
-      controllers["lastStock"]?.text = rowData["lastStock"] ?? "";
-      controllers["stockIn"]?.text = rowData["stockIn"] ?? "";
-      controllers["totalStock"]?.text = rowData["totalStock"] ?? "";
+      // controllers["lastStock"]?.text = rowData["lastStock"] ?? "";
+      // controllers["stockIn"]?.text = rowData["stockIn"] ?? "";
+      // controllers["totalStock"]?.text = rowData["totalStock"] ?? "";
       controllers["closingStock"]?.text = rowData["closingStock"] ?? "";
       controllers["selectedBrand"] = rowData["brand"];
       controllers["selectedOption"] = rowData["name"];
@@ -319,21 +319,23 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
             child: _buildSelectOptionField(index, controllers),
           ),
 
-          _buildTextField(
-            "Last Stock (in bottles)",
-            controllers["lastStock"] ?? "",
-            FocusNode(),
-          ),
-          _buildTextField(
-            "Stock In (in bottles)",
-            controllers["stockIn"] ?? "",
-            FocusNode(),
-          ),
-          _buildTextField(
-            "Total Stock In (in bottles)",
-            controllers["totalStock"] ?? "",
-            FocusNode(),
-          ),
+          /* As per client requirement */
+
+          // _buildTextField(
+          //   "Last Stock (in bottles)",
+          //   controllers["lastStock"] ?? "",
+          //   FocusNode(),
+          // ),
+          // _buildTextField(
+          //   "Stock In (in bottles)",
+          //   controllers["stockIn"] ?? "",
+          //   FocusNode(),
+          // ),
+          // _buildTextField(
+          //   "Total Stock In (in bottles)",
+          //   controllers["totalStock"] ?? "",
+          //   FocusNode(),
+          // ),
           _buildTextField(
             "Closing Stock (in bottles)",
             controllers["closingStock"] ?? "",
@@ -366,9 +368,9 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
     for (var controllers in productControllers) {
       (controllers["brand"] as TextEditingController?)?.clear();
       (controllers["name"] as TextEditingController?)?.clear();
-      (controllers["lastStock"] as TextEditingController?)?.clear();
-      (controllers["stockIn"] as TextEditingController?)?.clear();
-      (controllers["totalStock"] as TextEditingController?)?.clear();
+      // (controllers["lastStock"] as TextEditingController?)?.clear();
+      // (controllers["stockIn"] as TextEditingController?)?.clear();
+      // (controllers["totalStock"] as TextEditingController?)?.clear();
       (controllers["closingStock"] as TextEditingController?)?.clear();
       controllers["selectedBrand"] = null;
       controllers["selectedOption"] = null;
@@ -417,44 +419,60 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
   }
 
   void _saveProducts() {
-    final updatedStock =
-        productControllers.map((controllers) {
-          return {
-            "brand_name": controllers["brand"]?.text,
-            "label_name": controllers["name"]?.text,
-            "last_stock": int.parse("${controllers["lastStock"]?.text}"),
-            "stock_in": int.parse("${controllers["stockIn"]?.text}"),
-            "total_stock": int.parse("${controllers["totalStock"]?.text}"),
-            "closing_stock": int.parse("${controllers["closingStock"]?.text}"),
-          };
-        }).toList();
+  // Check for empty fields before proceeding
+  bool hasEmptyField = productControllers.any((controllers) {
+    return controllers.values.any((controller) {
+      return controller?.text.trim().isEmpty ?? true;
+    });
+  });
 
-    if (_editingIndex != null) {
-      context.read<SalesmanDashBoardBloc>().add(
-        UpdateStockEvent(
-          brandName: updatedStock[0]["brand_name"] ?? "",
-          labelName: updatedStock[0]["label_name"] ?? "",
-          stockId: productId?.toString() ?? "",
-          lastStock: updatedStock[0]["last_stock"]?.toString() ?? "",
-          stockIn: updatedStock[0]["stock_in"]?.toString() ?? "",
-          closingStock: updatedStock[0]["closing_stock"]?.toString() ?? "",
-          totalStock: updatedStock[0]["total_stock"]?.toString() ?? "",
-        ),
-      );
-
-      _editingIndex = null; // Reset editing index after update
-    } else {
-      // Save new data
-      context.read<SalesmanDashBoardBloc>().add(
-        SaveStockEvent(
-          shopId: int.parse(widget.shopId ?? ""),
-          stockList: updatedStock,
-        ),
-      );
-    }
-
-    emptyFields(); // Clear form after save/update
+  if (hasEmptyField) {
+    ToastService.showError("Please fill all the fields");
+    // Fluttertoast.showToast( 
+    //   msg: "Please fill all the fields",
+    //   toastLength: Toast.LENGTH_SHORT,
+    //   gravity: ToastGravity.BOTTOM,
+    // );
+    return; // Stop execution here
   }
+
+  final updatedStock = productControllers.map((controllers) {
+    return {
+      "brand_name": controllers["brand"]?.text,
+      "label_name": controllers["name"]?.text,
+      "last_stock": int.parse("${controllers["lastStock"]?.text}"),
+      "stock_in": int.parse("${controllers["stockIn"]?.text}"),
+      "total_stock": int.parse("${controllers["totalStock"]?.text}"),
+      "closing_stock": int.parse("${controllers["closingStock"]?.text}"),
+    };
+  }).toList();
+
+  if (_editingIndex != null) {
+    context.read<SalesmanDashBoardBloc>().add(
+      UpdateStockEvent(
+        brandName: updatedStock[0]["brand_name"] ?? "",
+        labelName: updatedStock[0]["label_name"] ?? "",
+        stockId: productId?.toString() ?? "",
+        lastStock: updatedStock[0]["last_stock"]?.toString() ?? "",
+        stockIn: updatedStock[0]["stock_in"]?.toString() ?? "",
+        closingStock: updatedStock[0]["closing_stock"]?.toString() ?? "",
+        totalStock: updatedStock[0]["total_stock"]?.toString() ?? "",
+      ),
+    );
+    _editingIndex = null; // Reset editing index after update
+  } else {
+    // Save new data
+    context.read<SalesmanDashBoardBloc>().add(
+      SaveStockEvent(
+        shopId: int.parse(widget.shopId ?? ""),
+        stockList: updatedStock,
+      ),
+    );
+  }
+
+  emptyFields(); // Clear form after save/update
+}
+
 
   String _formatDate(String? isoDate) {
     if (isoDate == null || isoDate.isEmpty) return "-";
@@ -471,9 +489,9 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
       "selectedBrand": null,
       "brand": TextEditingController(),
       "product": TextEditingController(),
-      "lastStock": TextEditingController(),
-      "stockIn": TextEditingController(),
-      "totalStock": TextEditingController(),
+      // "lastStock": TextEditingController(),
+      // "stockIn": TextEditingController(),
+      // "totalStock": TextEditingController(),
       "closingStock": TextEditingController(),
     };
   }
@@ -646,6 +664,8 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                                         ],
                                         CommonButton(
                                           onPressed: () {
+                                            
+
                                             _saveProducts();
                                             emptyFields();
                                           },
@@ -738,15 +758,15 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                                       DataColumn(label: Text('Shop')),
                                       DataColumn(label: Text('Brand')),
                                       DataColumn(label: Text('Name')),
-                                      DataColumn(
-                                        label: Text('Last Stock (In bottles)'),
-                                      ),
-                                      DataColumn(
-                                        label: Text('Stock In (In bottles)'),
-                                      ),
-                                      DataColumn(
-                                        label: Text('Total Stock (In bottles)'),
-                                      ),
+                                      // DataColumn(
+                                      //   label: Text('Last Stock (In bottles)'),
+                                      // ),
+                                      // DataColumn(
+                                      //   label: Text('Stock In (In bottles)'),
+                                      // ),
+                                      // DataColumn(
+                                      //   label: Text('Total Stock (In bottles)'),
+                                      // ),
                                       DataColumn(
                                         label: Text(
                                           'Closing Stock (In bottles)',
@@ -777,15 +797,15 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                                                     DataCell(
                                                       Text(row["name"]!),
                                                     ),
-                                                    DataCell(
-                                                      Text(row["lastStock"]!),
-                                                    ),
-                                                    DataCell(
-                                                      Text(row["stockIn"]!),
-                                                    ),
-                                                    DataCell(
-                                                      Text(row["totalStock"]!),
-                                                    ),
+                                                    // DataCell(
+                                                    //   Text(row["lastStock"]!),
+                                                    // ),
+                                                    // DataCell(
+                                                    //   Text(row["stockIn"]!),
+                                                    // ),
+                                                    // DataCell(
+                                                    //   Text(row["totalStock"]!),
+                                                    // ),
                                                     DataCell(
                                                       Text(
                                                         row["closingStock"]!,

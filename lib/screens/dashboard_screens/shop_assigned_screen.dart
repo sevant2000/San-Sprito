@@ -81,7 +81,7 @@ class _ShopListScreenState extends State<ShopListScreen> {
     userId = pref.getString('userId') ?? "";
     debugPrint("gettingUserId: $userId");
 
-    if (userId != null && userId!.isNotEmpty) {
+    if (userId != null && userId!.isNotEmpty && mounted) {
       context.read<AssignedShopListBloc>().add(
         AssignedShopListEvent(userId: userId!),
       );
