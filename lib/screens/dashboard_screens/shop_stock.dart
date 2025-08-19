@@ -148,8 +148,8 @@ class _ShopStockTableSource extends DataTableSource {
           Text(stock.brandName ?? ''),
         ), // Update these lines as per your model
         DataCell(Text(stock.labelName ?? '')),
-        DataCell(Text('${stock.stockIn ?? 0} Bottles')),
-        DataCell(Text('${stock.totalStock ?? 0} Bottles')),
+        // DataCell(Text('${stock.stockIn ?? 0} Bottles')),
+        // DataCell(Text('${stock.totalStock ?? 0} Bottles')),
         DataCell(Text('${stock.closingStock ?? 0} Bottles')),
         DataCell(Text(formatDate(stock.updatedAt ?? ""))),
       ],
