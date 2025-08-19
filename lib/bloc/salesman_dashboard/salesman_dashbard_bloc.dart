@@ -92,13 +92,21 @@ class SalesmanDashBoardBloc
         // debugPrint("Response body: ${response.body}");
 
         if (response.statusCode == 200) {
-          final Map<String, dynamic> jsonMap = jsonDecode(response.body);
-
-          final saveStockResponse = SaveStockResponse.fromJson(jsonMap);
-
-          emit(SaveStockSuccess(saveStockResponse: saveStockResponse));
+          try {
+            final Map<String, dynamic> jsonMap = jsonDecode(response.body);
+            final saveStockResponse = SaveStockResponse.fromJson(jsonMap);
+            emit(SaveStockSuccess(saveStockResponse: saveStockResponse));
+          } catch (e) {
+            debugPrint("❌ JSON Decode failed: ${response.body}");
+            emit(SalesmanDashBoardFailure(error: "Invalid response format"));
+          }
         } else {
-          emit(SalesmanDashBoardFailure(error: 'Invalid credentials'));
+          debugPrint("❌ API Error: ${response.body}");
+          emit(
+            SalesmanDashBoardFailure(
+              error: "Server error ${response.statusCode}",
+            ),
+          );
         }
       } catch (e, st) {
         debugPrint('❌ BLoC Error: $e');
@@ -145,7 +153,6 @@ class SalesmanDashBoardBloc
       try {
         final response = await apiService.deleteStock(event.stockId);
         debugPrint("Status code: ${response.statusCode}");
-       
 
         if (response.statusCode == 200) {
           final Map<String, dynamic> jsonMap = jsonDecode(response.body);
@@ -170,7 +177,7 @@ class SalesmanDashBoardBloc
           event.imageList,
         );
         debugPrint("Status code: ${response.statusCode}");
-         debugPrint("Response---- ${response.body}");
+        debugPrint("Response---- ${response.body}");
 
         if (response.statusCode == 200) {
           final Map<String, dynamic> jsonMap = jsonDecode(response.body);

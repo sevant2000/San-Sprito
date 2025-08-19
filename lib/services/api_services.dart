@@ -184,26 +184,52 @@ class ApiService {
     return await http.post(url, headers: headers, body: body);
   }
 
+  // Future<http.Response> updateStock({
+  //   required String stockId,
+  //   required String brandName,
+  //   required String labelName,
+  //   required String lastStock,
+  //   required String stockIn,
+  //   required String totalStock,
+  //   required String closingStock,
+  // }) async {
+  //   final url = Uri.parse('$_baseUrl/updateStock');
+
+  //   final request =
+  //       http.MultipartRequest('POST', url)
+  //         ..fields['stock_id'] = stockId
+  //         ..fields['brand_name'] = brandName
+  //         ..fields['label_name'] = labelName
+  //         ..fields['last_stock'] = lastStock
+  //         ..fields['stock_in'] = stockIn
+  //         ..fields['total_stock'] = totalStock
+  //         ..fields['closing_stock'] = closingStock;
+
+  //   final streamedResponse = await request.send();
+  //   return await http.Response.fromStream(streamedResponse);
+  // }
+
   Future<http.Response> updateStock({
     required String stockId,
-    required String brandName,
-    required String labelName,
-    required String lastStock,
-    required String stockIn,
-    required String totalStock,
-    required String closingStock,
+    String? brandName,
+    String? labelName,
+    String? lastStock,
+    String? stockIn,
+    String? totalStock,
+    String? closingStock,
   }) async {
     final url = Uri.parse('$_baseUrl/updateStock');
 
-    final request =
-        http.MultipartRequest('POST', url)
-          ..fields['stock_id'] = stockId
-          ..fields['brand_name'] = brandName
-          ..fields['label_name'] = labelName
-          ..fields['last_stock'] = lastStock
-          ..fields['stock_in'] = stockIn
-          ..fields['total_stock'] = totalStock
-          ..fields['closing_stock'] = closingStock;
+    final request = http.MultipartRequest('POST', url)
+      ..fields['stock_id'] = stockId;
+
+    // Add optional fields only if not null
+    if (brandName != null) request.fields['brand_name'] = brandName;
+    if (labelName != null) request.fields['label_name'] = labelName;
+    if (lastStock != null) request.fields['last_stock'] = lastStock;
+    if (stockIn != null) request.fields['stock_in'] = stockIn;
+    if (totalStock != null) request.fields['total_stock'] = totalStock;
+    if (closingStock != null) request.fields['closing_stock'] = closingStock;
 
     final streamedResponse = await request.send();
     return await http.Response.fromStream(streamedResponse);
@@ -256,9 +282,7 @@ class ApiService {
     return response;
   }
 
-  Future<http.Response> updateShopStatus({
-    required String shopId,
-  }) async {
+  Future<http.Response> updateShopStatus({required String shopId}) async {
     final url = Uri.parse('$_baseUrl/update_status');
 
     var request = http.MultipartRequest('POST', url)

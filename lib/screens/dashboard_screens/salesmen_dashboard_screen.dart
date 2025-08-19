@@ -420,32 +420,34 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
 
   void _saveProducts() {
   // Check for empty fields before proceeding
-  bool hasEmptyField = productControllers.any((controllers) {
-    return controllers.values.any((controller) {
-      return controller?.text.trim().isEmpty ?? true;
-    });
-  });
+  // bool hasEmptyField = productControllers.any((controllers) {
+  //   return controllers.values.any((controller) {
+  //     return controller?.text.trim().isEmpty ?? true;
+  //   });
+  // });
 
-  if (hasEmptyField) {
-    ToastService.showError("Please fill all the fields");
-    // Fluttertoast.showToast( 
-    //   msg: "Please fill all the fields",
-    //   toastLength: Toast.LENGTH_SHORT,
-    //   gravity: ToastGravity.BOTTOM,
-    // );
-    return; // Stop execution here
-  }
+  // if (hasEmptyField) {
+  //   ToastService.showError("Please fill all the fields");
+  //   // Fluttertoast.showToast( 
+  //   //   msg: "Please fill all the fields",
+  //   //   toastLength: Toast.LENGTH_SHORT,
+  //   //   gravity: ToastGravity.BOTTOM,
+  //   // );
+  //   return; // Stop execution here
+  // }
 
   final updatedStock = productControllers.map((controllers) {
     return {
       "brand_name": controllers["brand"]?.text,
       "label_name": controllers["name"]?.text,
-      "last_stock": int.parse("${controllers["lastStock"]?.text}"),
-      "stock_in": int.parse("${controllers["stockIn"]?.text}"),
-      "total_stock": int.parse("${controllers["totalStock"]?.text}"),
+      // "last_stock": int.parse("${controllers["lastStock"]?.text}"),
+      // "stock_in": int.parse("${controllers["stockIn"]?.text}"),
+      // "total_stock": int.parse("${controllers["totalStock"]?.text}"),
       "closing_stock": int.parse("${controllers["closingStock"]?.text}"),
     };
   }).toList();
+
+  debugPrint("--------REQUEST IS $updatedStock");
 
   if (_editingIndex != null) {
     context.read<SalesmanDashBoardBloc>().add(
@@ -453,10 +455,10 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
         brandName: updatedStock[0]["brand_name"] ?? "",
         labelName: updatedStock[0]["label_name"] ?? "",
         stockId: productId?.toString() ?? "",
-        lastStock: updatedStock[0]["last_stock"]?.toString() ?? "",
-        stockIn: updatedStock[0]["stock_in"]?.toString() ?? "",
+        // lastStock: updatedStock[0]["last_stock"]?.toString() ?? "",
+        // stockIn: updatedStock[0]["stock_in"]?.toString() ?? "",
         closingStock: updatedStock[0]["closing_stock"]?.toString() ?? "",
-        totalStock: updatedStock[0]["total_stock"]?.toString() ?? "",
+        // totalStock: updatedStock[0]["total_stock"]?.toString() ?? "",
       ),
     );
     _editingIndex = null; // Reset editing index after update

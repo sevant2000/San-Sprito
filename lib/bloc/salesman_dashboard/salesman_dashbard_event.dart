@@ -29,25 +29,46 @@ class SaveStockEvent extends SalesmanDashBoardEventClass {
   SaveStockEvent({required this.shopId, required this.stockList});
 }
 
+// class UpdateStockEvent extends SalesmanDashBoardEventClass {
+//   final String stockId;
+//   final String brandName;
+//   final String labelName;
+//   final String lastStock;
+//   final String stockIn;
+//   final String totalStock;
+//   final String closingStock;
+
+//   UpdateStockEvent({
+//     required this.stockId,
+//     required this.brandName,
+//     required this.labelName,
+//     required this.lastStock,
+//     required this.stockIn,
+//     required this.totalStock,
+//     required this.closingStock,
+//   });
+// }
+
 class UpdateStockEvent extends SalesmanDashBoardEventClass {
   final String stockId;
-  final String brandName;
-  final String labelName;
-  final String lastStock;
-  final String stockIn;
-  final String totalStock;
-  final String closingStock;
+  final String? brandName;
+  final String? labelName;
+  final String? lastStock;
+  final String? stockIn;
+  final String? totalStock;
+  final String? closingStock;
 
   UpdateStockEvent({
     required this.stockId,
-    required this.brandName,
-    required this.labelName,
-    required this.lastStock,
-    required this.stockIn,
-    required this.totalStock,
-    required this.closingStock,
+    this.brandName,
+    this.labelName,
+    this.lastStock,
+    this.stockIn,
+    this.totalStock,
+    this.closingStock,
   });
 }
+
 
 class DeleteStockEvent extends SalesmanDashBoardEventClass {
   final String stockId;
