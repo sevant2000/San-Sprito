@@ -184,31 +184,6 @@ class ApiService {
     return await http.post(url, headers: headers, body: body);
   }
 
-  // Future<http.Response> updateStock({
-  //   required String stockId,
-  //   required String brandName,
-  //   required String labelName,
-  //   required String lastStock,
-  //   required String stockIn,
-  //   required String totalStock,
-  //   required String closingStock,
-  // }) async {
-  //   final url = Uri.parse('$_baseUrl/updateStock');
-
-  //   final request =
-  //       http.MultipartRequest('POST', url)
-  //         ..fields['stock_id'] = stockId
-  //         ..fields['brand_name'] = brandName
-  //         ..fields['label_name'] = labelName
-  //         ..fields['last_stock'] = lastStock
-  //         ..fields['stock_in'] = stockIn
-  //         ..fields['total_stock'] = totalStock
-  //         ..fields['closing_stock'] = closingStock;
-
-  //   final streamedResponse = await request.send();
-  //   return await http.Response.fromStream(streamedResponse);
-  // }
-
   Future<http.Response> updateStock({
     required String stockId,
     String? brandName,
@@ -290,5 +265,56 @@ class ApiService {
 
     var streamedResponse = await request.send();
     return await http.Response.fromStream(streamedResponse);
+  }
+
+  Future<http.Response> createPromotion({
+    required String shopId,
+    required String salesmanId,
+    required String brandName,
+    required String noOfBottles,
+    required String categoryName,
+  }) async {
+    final url = Uri.parse('$_baseUrl/createPromotion');
+
+    var request =
+        http.MultipartRequest('POST', url)
+          ..fields['shop_id'] = shopId
+          ..fields['salesman_id'] = salesmanId
+          ..fields['brand_name'] = brandName
+          ..fields['no_of_bottles'] = noOfBottles
+          ..fields['categoryName'] = categoryName;
+
+    var streamedResponse = await request.send();
+    return await http.Response.fromStream(streamedResponse);
+  }
+
+  Future<http.Response> getPromotionList() async {
+    final url = Uri.parse('$_baseUrl/promotion_list');
+
+    final headers = {'Content-Type': _contentType};
+
+    // No body needed — empty POST
+    final response = await http.post(url, headers: headers);
+    return response;
+  }
+
+  Future<http.Response> updatePromotion({
+    required String brandName,
+    required int noOfBottles,
+    required int promotionId,
+  }) async {
+    final url = Uri.parse('$_baseUrl/updatePromotion');
+
+    final headers = {'Content-Type': _contentType};
+
+    final body = {
+      'brand_name': brandName,
+      'no_of_bottles': noOfBottles.toString(),
+      'promotion_id': promotionId.toString(),
+    };
+
+    final response = await http.post(url, headers: headers, body: body);
+
+    return response;
   }
 }

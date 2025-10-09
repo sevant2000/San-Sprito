@@ -46,7 +46,7 @@ class CommonInputField extends StatelessWidget {
       validator: validator,
       textInputAction: textInputAction,
       onFieldSubmitted: onFieldSubmitted,
-      decoration: InputDecoration(
+      decoration: InputDecoration(border: OutlineInputBorder(),
         hintText: hintText,
         hintStyle: hintStyle ??
             const TextStyle(

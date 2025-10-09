@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:san_sprito/bloc/assigned_shop_list/assigned_shop_list_bloc.dart';
 import 'package:san_sprito/bloc/assigned_shop_list/assigned_shop_list_event.dart';
 import 'package:san_sprito/bloc/assigned_shop_list/assigned_shop_list_state.dart';
+import 'package:san_sprito/bloc/promotion_bloc/promotion_bloc.dart';
+import 'package:san_sprito/bloc/promotion_bloc/promotion_event.dart';
+import 'package:san_sprito/bloc/promotion_bloc/promotion_state.dart';
 import 'package:san_sprito/common_widgets/color_constant.dart';
 import 'package:san_sprito/common_widgets/common_alert_dialog.dart';
 import 'package:san_sprito/common_widgets/common_app_bar.dart';
@@ -12,6 +15,7 @@ import 'package:san_sprito/common_widgets/common_toast_widget.dart';
 import 'package:san_sprito/common_widgets/navigation_helper.dart';
 import 'package:san_sprito/common_widgets/shared_pref.dart';
 import 'package:san_sprito/models/assigned_shop_list_response.dart';
+import 'package:san_sprito/models/promotion_list_response.dart';
 import 'package:san_sprito/screens/dashboard_screens/add_promotion_screen.dart';
 import 'package:san_sprito/screens/dashboard_screens/salesmen_dashboard_screen.dart';
 
@@ -28,7 +32,7 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
   bool isLoad = false;
   String? userId;
 
-  List<AssignedShopListData>? assignedShopListData;
+  List<PromotionListData>? assignedShopListData;
   List<Map<String, String>>? _data; // Original full data
   List<Map<String, String>> _filteredData =
       []; // Filtered data for search & pagination
@@ -84,9 +88,7 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
     debugPrint("gettingUserId: $userId");
 
     if (userId != null && userId!.isNotEmpty && mounted) {
-      context.read<AssignedShopListBloc>().add(
-        AssignedShopListEvent(userId: userId!),
-      );
+      context.read<CreatePromotionBloc>().add(PromotionListEvent());
     } else {
       debugPrint("UserId is null or empty — skipping API call");
     }
@@ -94,36 +96,29 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AssignedShopListBloc, AssignedShopListState>(
+    return BlocConsumer<CreatePromotionBloc, CreatePromotionState>(
       listener: (context, state) {
-        if (state is AssignedShopListLoading) {
+        if (state is CreatePromotionLoading) {
           isLoad = true;
-        } else if (state is AssignedShopListSuccess) {
-          assignedShopListData = state.assignedShopListResponseList.data ?? [];
+        } else if (state is PromotionListSuccess) {
+          assignedShopListData = state.promotionListResponse.data ?? [];
           _data = List.generate(assignedShopListData?.length ?? 0, (index) {
             return {
               "id": assignedShopListData?[index].id ?? "",
-              "shopName": assignedShopListData?[index].name ?? "",
-              "licence": assignedShopListData?[index].licence ?? "",
-              "district": assignedShopListData?[index].district ?? "",
-              "licenceName": assignedShopListData?[index].contactPerson ?? "",
-              "contact": assignedShopListData?[index].contactNumber ?? "",
-              "status": assignedShopListData?[index].status ?? "",
-              "shop": "LOGIN",
-              "remark": assignedShopListData?[index].message ?? "",
+              "shopId": assignedShopListData?[index].shopId ?? "",
+              "salesmenId": assignedShopListData?[index].salesmanId ?? "",
+              "brandName": assignedShopListData?[index].brandName ?? "",
+              "noOfBottles": assignedShopListData?[index].noOfBottles ?? "",
+              "shopName": assignedShopListData?[index].shopName ?? "",
+              "salesmenName": assignedShopListData?[index].salesmanName ?? "",
+              "categoryName": assignedShopListData?[index].categoryName ?? "",
             };
           });
 
           // Set filteredData to full list initially
           _filteredData = List.from(_data!);
           isLoad = false;
-        } else if (state is SaveRemarkSuccessState) {
-          ToastService.showSuccess("Remark saved successfully");
-          getUserIdAndLoadData();
-        } else if (state is UpdateStatusSuccessState) {
-          ToastService.showSuccess("Status Updated Successfully");
-          getUserIdAndLoadData();
-        } else if (state is AssignedShopListFailure) {
+        } else if (state is CreatePromotionFailure) {
           isLoad = false;
           ToastService.showError("Something went wrong");
         }
@@ -131,7 +126,7 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
-          appBar: const CommonAppBar(title: "Shop List"),
+          appBar: const CommonAppBar(title: "Promotion List"),
           body:
               isLoad
                   ? Center(
@@ -168,14 +163,19 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
                               alignment: Alignment.centerLeft,
                               child: CommonButton(
                                 onPressed: () {
-                                  NavigationHelper.navigate(context, AddPromotionScreen());
+                                  NavigationHelper.navigate(
+                                    context,
+                                    AddPromotionScreen(),
+                                  ).then((val){
+                                    getUserIdAndLoadData();
+                                  });
                                 },
                                 text: "Add Promotion",
                               ),
                             ),
                           ),
                           PaginatedDataTable(
-                            header: const Text("Shop List"),
+                            header: const Text("Promotion List"),
                             rowsPerPage: _rowsPerPage,
                             availableRowsPerPage: const [10, 20, 30],
                             onPageChanged: (start) {
@@ -186,13 +186,14 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
                             columns: const [
                               DataColumn(label: Text("#")),
                               DataColumn(label: Text("Shop Name")),
-                              DataColumn(label: Text("Licencee")),
-                              DataColumn(label: Text("District")),
-                              DataColumn(label: Text("Licence name")),
-                              DataColumn(label: Text("Contact")),
-                              DataColumn(label: Text("Status")),
-                              DataColumn(label: Text("Shop")),
-                              DataColumn(label: Text("Remark")),
+                              DataColumn(label: Text("Brand Name")),
+                              DataColumn(label: Text("No of bottles")),
+                              DataColumn(label: Text("Salesman Name")),
+                              DataColumn(label: Text("Category Name")),
+                              DataColumn(label: Text("")),
+                              // DataColumn(label: Text("Status")),
+                              // DataColumn(label: Text("Shop")),
+                              // DataColumn(label: Text("Remark")),
                             ],
                             source: ShopDataSource(
                               _paginatedData,
@@ -241,7 +242,7 @@ class ShopDataSource extends DataTableSource {
   DataRow? getRow(int index) {
     if (index >= data.length) return null;
     final shop = data[index];
-    final shopId = shop["id"];
+    final _ = shop["id"];
     dialogCtrl.text = shop["remark"] ?? "";
     return DataRow(
       cells: [
@@ -249,13 +250,13 @@ class ShopDataSource extends DataTableSource {
         DataCell(
           InkWell(
             onTap: () {
-              NavigationHelper.navigate(
-                context,
-                SalesmanStockDashboard(
-                  shopId: shop["id"],
-                  shopName: shop["shopName"],
-                ),
-              );
+              // NavigationHelper.navigate(
+              //   context,
+              //   SalesmanStockDashboard(
+              //     shopId: shop["id"],
+              //     shopName: shop["shopName"],
+              //   ),
+              // );
             },
             child: Text(
               shop["shopName"] ?? "",
@@ -266,121 +267,29 @@ class ShopDataSource extends DataTableSource {
             ),
           ),
         ),
-        DataCell(Text(shop["licence"] ?? "")),
-        DataCell(Text(shop["district"] ?? "")),
-        DataCell(Text(shop["licenceName"] ?? "")),
-        DataCell(Text(shop["contact"] ?? "")),
+        DataCell(Text(shop["brandName"] ?? "")),
+        DataCell(Text(shop["noOfBottles"] ?? "")),
+        DataCell(Text(shop["salesmenName"] ?? "")),
+        DataCell(Text(shop["categoryName"] ?? "")),
         DataCell(
-          InkWell(
-            onTap: () {
-              showConfirmationDialog(
-                context: context,
-                confirmText: "Yes",
-                cancelText: "No",
-                title: "Are you sure want to change the status",
-                onDeletePressed: () {
-                  context.read<AssignedShopListBloc>().add(
-                    UpdateStatusEvent(shopId: shopId ?? ""),
-                  );
-                  Navigator.pop(context);
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: CommonColor.logoBGColor,
+              ),
+              child: IconButton(
+                icon: Icon(Icons.edit, color: Colors.white, size: 15),
+                onPressed: () {
+                  NavigationHelper.navigate(context, AddPromotionScreen(
+                    promoId: shop["id"],
+                    shop: shop,
+                    comeFromPromoList: true,
+                  ),);
                 },
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color:
-                    shop["status"] == "1" ? Colors.green[100] : Colors.red[100],
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                shop["status"] == "1" ? "ACTIVE" : "NOT ACTIVE",
-                style: TextStyle(
-                  color: shop["status"] == "1" ? Colors.green : Colors.red,
-                ),
               ),
             ),
-          ),
-        ),
-        DataCell(
-          InkWell(
-            onTap: () {
-              NavigationHelper.navigate(
-                context,
-                SalesmanStockDashboard(
-                  shopId: shop["id"],
-                  shopName: shop["shopName"],
-                ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.blue[100],
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Text("LOGIN", style: TextStyle(color: Colors.blue)),
-            ),
-          ),
-        ),
-        DataCell(
-          Row(
-            children: [
-              Text(
-                shop["remark"]?.isEmpty ?? false
-                    ? "No Remark"
-                    : shop["remark"] ?? "",
-              ),
-              shop["remark"]?.isNotEmpty ?? false
-                  ? IconButton(
-                    onPressed: () {
-                      showRemarkDialog(
-                        remarkController: dialogCtrl,
-                        context: context,
-                        onSave: (value) {
-                          context.read<AssignedShopListBloc>().add(
-                            SaveRemarkEvent(
-                              shopId: shopId ?? "",
-                              message: value,
-                            ),
-                          );
-                          // Navigator.pop(context);
-                        },
-                        isLoading: false,
-                      );
-                    },
-                    icon: Icon(
-                      Icons.edit_calendar_rounded,
-                      color: CommonColor.logoBGColor,
-                      size: 18,
-                    ),
-                  )
-                  : IconButton(
-                    onPressed: () {
-                      showRemarkDialog(
-                        context: context,
-                        remarkController: dialogCtrl,
-                        onSave: (value) {
-                          debugPrint("response ${dialogCtrl.text}");
-                          debugPrint("id $shopId");
-
-                          context.read<AssignedShopListBloc>().add(
-                            SaveRemarkEvent(
-                              shopId: shopId ?? "",
-                              message: value,
-                            ),
-                          );
-                        },
-                        isLoading: false,
-                      );
-                    },
-                    icon: Icon(
-                      Icons.add_circle_outline,
-                      color: CommonColor.logoBGColor,
-                      size: 18,
-                    ),
-                  ),
-            ],
           ),
         ),
       ],

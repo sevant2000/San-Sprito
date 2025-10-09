@@ -1,21 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:san_sprito/bloc/assigned_shop_list/assigned_shop_list_bloc.dart';
 import 'package:san_sprito/bloc/assigned_shop_list/assigned_shop_list_event.dart';
 import 'package:san_sprito/bloc/assigned_shop_list/assigned_shop_list_state.dart';
+import 'package:san_sprito/bloc/promotion_bloc/promotion_bloc.dart';
+import 'package:san_sprito/bloc/promotion_bloc/promotion_event.dart';
+import 'package:san_sprito/bloc/promotion_bloc/promotion_state.dart';
 import 'package:san_sprito/bloc/salesman_dashboard/salesman_dashbard_bloc.dart';
 import 'package:san_sprito/bloc/salesman_dashboard/salesman_dashbard_event.dart';
 import 'package:san_sprito/bloc/salesman_dashboard/salesman_dashbard_state.dart';
 import 'package:san_sprito/common_widgets/color_constant.dart';
 import 'package:san_sprito/common_widgets/common_app_bar.dart';
-import 'package:san_sprito/common_widgets/location_helper.dart';
+import 'package:san_sprito/common_widgets/common_button.dart';
+import 'package:san_sprito/common_widgets/common_input_field.dart';
+import 'package:san_sprito/common_widgets/common_toast_widget.dart';
 import 'package:san_sprito/common_widgets/shared_pref.dart';
 import 'package:san_sprito/models/assigned_shop_list_response.dart';
 import 'package:san_sprito/models/create_shop_stock_response.dart';
 import 'package:san_sprito/models/get_brands_products_response.dart';
 
 class AddPromotionScreen extends StatefulWidget {
-  const AddPromotionScreen({super.key});
+  final String? promoId;
+  final Map<String, String>? shop;
+  final bool? comeFromPromoList;
+  const AddPromotionScreen({
+    super.key,
+    this.promoId,
+    this.shop,
+    this.comeFromPromoList,
+  });
 
   @override
   State<AddPromotionScreen> createState() => _AddPromotionScreenState();
@@ -37,39 +51,41 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
   List<AssignedShopListData>? assignedShopListData;
   List<String> categoryNames = [];
   List<String> shopNames = [];
+  List<Shops>? shopList = []; // where Shop is your model class
+  String? selectedShopId;
+  String? selectedShopName;
+
   // Original full data
   TextEditingController selectedBrandOptionCtrl = TextEditingController();
+  TextEditingController noOfBottlesCtrl = TextEditingController();
 
   @override
   void initState() {
-    fetchLocation();
+    if (widget.comeFromPromoList == true) {
+      insertData();
+    }
     getUserIdAndLoadData();
+    debugPrint("promoId---${widget.promoId}");
+    debugPrint("shopData---${widget.shop}");
     super.initState();
+  }
+
+  insertData() {
+    selectedShopId = widget.shop?["shopId"] ?? "";
+    selectedShopName = widget.shop?["shopName"] ?? "";
+    noOfBottlesCtrl.text = widget.shop?["noOfBottles"] ?? "";
+    selectedBrandOptionCtrl.text = widget.shop?["brandName"] ?? "";
+    selectedBrand = widget.shop?["categoryName"] ?? "";
   }
 
   List<String> get allOptions =>
       getProductBrandList?.map((e) => e.name ?? "").toList() ?? [];
 
-  Future<String?> fetchLocation() async {
-    final locationData = await LocationHelper.getCurrentLocation();
-    final address = locationData?['address'];
-
-    if (locationData?['error'] != null) {
-      debugPrint("Error: ${locationData!['error']}");
-    } else {
-      debugPrint("Lat: ${locationData!['latitude']}");
-      debugPrint("Lng: ${locationData['longitude']}");
-      debugPrint("Address: $address");
-    }
-
-    return address;
-  }
-
   Future<void> getUserIdAndLoadData() async {
     final pref = await SharedPrefHelper.getInstance();
     userId = pref.getString('userId') ?? "";
     debugPrint("gettingUserId: $userId");
-    String? address = await fetchLocation();
+    // String? _ = await fetchLocation();
 
     if (userId != null && userId!.isNotEmpty && mounted) {
       context.read<AssignedShopListBloc>().add(
@@ -79,6 +95,8 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
       debugPrint("UserId is null or empty");
     }
   }
+
+  updatePromo() {}
 
   @override
   Widget build(BuildContext context) {
@@ -113,11 +131,10 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
               isLoad = true;
             } else if (state is SalesmanDashBoardSuccess) {
               createShopStockData = state.createShopStockResponseModel.data;
-              shopNames =
-                  createShopStockData?.shops
-                      ?.map((e) => e.name ?? "")
-                      .toList() ??
-                  [];
+
+              shopList = createShopStockData?.shops ?? [];
+              shopNames = shopList?.map((e) => e.name ?? "").toList() ?? [];
+
               categories = createShopStockData?.categories ?? [];
               categoryNames =
                   categories?.map((e) => e.name ?? "").toList() ?? [];
@@ -129,74 +146,210 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
             }
           },
         ),
+        BlocListener<CreatePromotionBloc, CreatePromotionState>(
+          listener: (context, state) {
+            if (state is CreatePromotionLoading) {
+              isLoad = true;
+            } else if (state is CreatePromotionSuccess) {
+              Fluttertoast.showToast(
+                msg: "Promotion Added Successfully",
+                backgroundColor: CommonColor.logoBGColor,
+              );
+              Navigator.pop(context);
+              isLoad = false;
+            } else if (state is UpdatePromotionSuccess) {
+              Fluttertoast.showToast(
+                msg: "Promotion Updated Successfully",
+                backgroundColor: CommonColor.logoBGColor,
+              );
+              Navigator.pop(context);
+              Navigator.pop(context);
+              isLoad = false;
+            } else if (state is CreatePromotionFailure) {
+              ToastService.showError(state.error);
+              isLoad = false;
+            }
+          },
+        ),
       ],
       child: BlocBuilder<SalesmanDashBoardBloc, SalesmanDashBoardState>(
         builder: (context, state) {
-          return Scaffold(
-            backgroundColor: Colors.white,
-            appBar: const CommonAppBar(title: "Add Promotion"),
-            body:
-                isLoad || (categoryNames.isEmpty == true)
-                    // true
-                    ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Center(
-                          child: CircularProgressIndicator(
-                            color: CommonColor.logoBGColor,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text("Fetching Data"),
-                      ],
-                    )
-                    : Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 20,
-                      ),
-                      child: Column(
-                        children: [
-                          _buildDropdown(
-                            hint: 'Select Shop',
-                            selectedValue: selectedShop,
-                            items: shopNames,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedShop = value ?? "";
-                              });
-                            },
-                          ),
-                          _buildDropdown(
-                            hint: 'Select Brand',
-                            selectedValue: selectedBrand,
-                            items: categoryNames,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedBrand = value ?? "";
-                              });
-                              if (value != null && value.isNotEmpty) {
-                                context.read<SalesmanDashBoardBloc>().add(
-                                  GetBrandProductListEvent(brandName: value),
-                                );
-                              }
-                            },
-                          ),
-                          SizedBox(
-                            width: double.infinity, // or any width you want
-                            child: _buildSelectOptionField(
-                              0,
-                              selectedBrandOptionCtrl.text,
-                              () => _openOptionsBottomSheet(
-                                controller: selectedBrandOptionCtrl,
-                                allOptions: allOptions,
+          return BlocBuilder<CreatePromotionBloc, CreatePromotionState>(
+            builder: (context, state) {
+              return Scaffold(
+                backgroundColor: Colors.white,
+                appBar: const CommonAppBar(title: "Add Promotion"),
+                body:
+                    isLoad || (categoryNames.isEmpty == true)
+                        // true
+                        ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Center(
+                              child: CircularProgressIndicator(
+                                color: CommonColor.logoBGColor,
                               ),
                             ),
+                            SizedBox(height: 10),
+                            Text("Fetching Data"),
+                          ],
+                        )
+                        : SingleChildScrollView(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 20,
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  widget.comeFromPromoList ?? false
+                                      ? "Update promotion"
+                                      : "Add Promotion",
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 15),
+                                _buildDropdown(
+                                  enable:
+                                      widget.comeFromPromoList ?? false
+                                          ? false
+                                          : true,
+                                  hint: 'Select Shop',
+                                  selectedValue: selectedShopName,
+                                  items: shopNames,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedShopName = value ?? "";
+                                      final selectedShop = shopList?.firstWhere(
+                                        (shop) => shop.name == value,
+                                        orElse:
+                                            () => Shops(
+                                              id: '',
+                                              name: '',
+                                            ), // fallback
+                                      );
+                                      selectedShopId = selectedShop?.id ?? "";
+                                      debugPrint(
+                                        "Selected shop id: $selectedShopId",
+                                      );
+                                    });
+                                  },
+                                ),
+
+                                SizedBox(height: 15),
+                                _buildDropdown(
+                                  enable:
+                                      widget.comeFromPromoList ?? false
+                                          ? false
+                                          : true,
+                                  hint: 'Select Brand',
+                                  selectedValue: selectedBrand,
+                                  items: categoryNames,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedBrand = value ?? "";
+                                    });
+                                    if (value != null && value.isNotEmpty) {
+                                      context.read<SalesmanDashBoardBloc>().add(
+                                        GetBrandProductListEvent(
+                                          brandName: value,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                                SizedBox(height: 15),
+                                SizedBox(
+                                  width:
+                                      double.infinity, // or any width you want
+                                  child: _buildSelectOptionField(
+                                    0,
+                                    selectedBrandOptionCtrl.text,
+                                    () {
+                                      widget.comeFromPromoList ?? false
+                                          ? null
+                                          : _openOptionsBottomSheet(
+                                            controller: selectedBrandOptionCtrl,
+                                            allOptions: allOptions,
+                                          );
+                                    },
+                                    widget.comeFromPromoList ?? false,
+
+                                    // () =>
+                                  ),
+                                ),
+                                SizedBox(height: 15),
+                                CommonInputField(
+                                  controller: noOfBottlesCtrl,
+                                  hintText: "Enter number of bottles",
+                                  keyboardType: TextInputType.number,
+                                  hintStyle: TextStyle(
+                                    color: CommonColor.black,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                                SizedBox(height: 25),
+                                CommonButton(
+                                  width: double.infinity,
+                                  onPressed: () {
+                                    if (selectedShopName?.isEmpty ??
+                                        false ||
+                                            selectedBrand.isEmpty ||
+                                            selectedBrandOptionCtrl
+                                                .text
+                                                .isEmpty ||
+                                            noOfBottlesCtrl.text.isEmpty) {
+                                      ToastService.showError(
+                                        "Please fill all mandatory fields",
+                                      );
+                                    } else if (widget.comeFromPromoList ??
+                                        false) {
+                                      context.read<CreatePromotionBloc>().add(
+                                        UpdatePromotionEvent(
+                                          brandName:
+                                              widget.shop?["brandName"] ?? "",
+                                          promotionId: int.parse(
+                                            widget.promoId ?? "",
+                                          ),
+                                          noOfBottles: int.parse(
+                                            noOfBottlesCtrl.text,
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      context.read<CreatePromotionBloc>().add(
+                                        CreatePromotionEvent(
+                                          shopId: selectedShopId ?? "",
+                                          brandName:
+                                              selectedBrandOptionCtrl.text,
+                                          noOfBottles: noOfBottlesCtrl.text,
+                                          salesmanId: userId ?? "",
+                                          categoryName: selectedBrand,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  backgroundColor:
+                                      widget.comeFromPromoList ?? false
+                                          ? Colors.amber
+                                          : CommonColor.logoBGColor,
+                                  text:
+                                      widget.comeFromPromoList ?? false
+                                          ? "Update promotion"
+                                          : "Add Promotion",
+                                  isLoading: false,
+                                  icon: Icons.done,
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+              );
+            },
           );
         },
       ),
@@ -208,6 +361,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
     required String? selectedValue,
     required List<String> items,
     required ValueChanged<String?> onChanged,
+    required bool enable,
   }) {
     final String? validValue =
         (selectedValue != null && items.contains(selectedValue))
@@ -217,41 +371,46 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
     return SizedBox(
       width: double.infinity,
       child: DropdownButtonFormField<String>(
-        initialValue: validValue,
+        value: validValue,
         decoration: InputDecoration(
           labelText: hint,
-          border: const OutlineInputBorder(),
+          labelStyle: TextStyle(color: enable ? Colors.black : Colors.grey),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 12,
             vertical: 14,
+          ),
+          // ✅ Border when enabled
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(6),
+            borderSide: const BorderSide(
+              color: CommonColor.black, // Your border color
+              width: 1.2,
+            ),
+          ),
+          // ✅ Border when focused (user taps on dropdown)
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(6),
+            borderSide: const BorderSide(color: CommonColor.black, width: 1.5),
+          ),
+          // ✅ Border when disabled
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(6),
+            borderSide: const BorderSide(color: Colors.grey, width: 1.0),
           ),
         ),
         isExpanded: true,
         icon: const Icon(Icons.keyboard_arrow_down),
         items:
             items.map((String value) {
-              return DropdownMenuItem<String>(value: value, child: Text(value));
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(
+                  value,
+                  style: TextStyle(color: enable ? Colors.black : Colors.grey),
+                ),
+              );
             }).toList(),
-        onChanged: onChanged,
-      ),
-    );
-  }
-
-  Widget _buildTextField(
-    String hint,
-    TextEditingController controller,
-    FocusNode focusNode,
-  ) {
-    return SizedBox(
-      width: double.infinity,
-      child: TextField(
-        keyboardType: TextInputType.numberWithOptions(),
-        controller: controller,
-        focusNode: focusNode,
-        decoration: InputDecoration(
-          labelText: hint,
-          border: const OutlineInputBorder(),
-        ),
+        onChanged: enable ? onChanged : null, // Disable if false
       ),
     );
   }
@@ -260,19 +419,20 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
     int index,
     String selectedOption,
     VoidCallback onTap,
+    bool enable,
   ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
+          border: Border.all(color: (enable) ? Colors.grey : Colors.black),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Text(
           selectedOption.isNotEmpty ? selectedOption : "Select an option",
-          style: const TextStyle(
-            color: Color.fromARGB(255, 32, 30, 30),
+          style: TextStyle(
+            color: (enable) ? Colors.grey : CommonColor.black,
             fontSize: 15,
           ),
         ),
@@ -341,7 +501,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                     const SizedBox(height: 12),
                     Expanded(
                       child:
-                          filteredOptions.isNotEmpty ?? false
+                          filteredOptions.isNotEmpty
                               ? ListView.builder(
                                 itemCount: filteredOptions.length,
                                 itemBuilder: (context, i) {
@@ -370,5 +530,4 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
       },
     );
   }
-
 }

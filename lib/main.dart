@@ -4,6 +4,7 @@ import 'package:san_sprito/bloc/assigned_shop_list/assigned_shop_list_bloc.dart'
 import 'package:san_sprito/bloc/dashBoard/dash_board_bloc.dart';
 import 'package:san_sprito/bloc/main_bloc/login_bloc.dart';
 import 'package:san_sprito/bloc/priority_stock/priority_stock_bloc.dart';
+import 'package:san_sprito/bloc/promotion_bloc/promotion_bloc.dart';
 import 'package:san_sprito/bloc/sales_target/sales_target_bloc.dart';
 import 'package:san_sprito/bloc/salesman_dashboard/salesman_dashbard_bloc.dart';
 import 'package:san_sprito/bloc/send_message/send_message_bloc.dart';
@@ -70,6 +71,11 @@ class MyApp extends StatelessWidget {
                 (context) => SalesmanDashBoardBloc(
                   apiService: context.read<ApiService>(),
                 ),
+          ),
+          BlocProvider<CreatePromotionBloc>(
+            create:
+                (context) =>
+                    CreatePromotionBloc(apiService: context.read<ApiService>()),
           ),
 
           // Add other BlocProviders here (e.g., UserBloc)

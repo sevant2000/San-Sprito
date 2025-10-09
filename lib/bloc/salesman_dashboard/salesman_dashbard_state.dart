@@ -13,12 +13,12 @@ class SalesmanDashBoardInitial extends SalesmanDashBoardState {
 
 class SalesmanDashBoardLoading extends SalesmanDashBoardState {}
 
+class SaveStockLoadingState extends SalesmanDashBoardState {}
+
 class SalesmanDashBoardSuccess extends SalesmanDashBoardState {
   final CreateShopStockResponseModel createShopStockResponseModel;
   SalesmanDashBoardSuccess({required this.createShopStockResponseModel});
 }
-
-class SaveStockLoadingState extends SalesmanDashBoardState {}
 
 class SaveStockSuccess extends SalesmanDashBoardState {
   final SaveStockResponse saveStockResponse;
