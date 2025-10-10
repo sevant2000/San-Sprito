@@ -237,7 +237,7 @@ class ApiService {
     String shopId,
     List<File> imageFiles,
   ) async {
-    final url = Uri.parse('$_baseUrl/shop_photos');
+      final url = Uri.parse('$_baseUrl/shop_photos');
 
     final request = http.MultipartRequest('POST', url);
     request.fields['shop_id'] = shopId;
@@ -312,6 +312,18 @@ class ApiService {
       'no_of_bottles': noOfBottles.toString(),
       'promotion_id': promotionId.toString(),
     };
+
+    final response = await http.post(url, headers: headers, body: body);
+
+    return response;
+  }
+
+  Future<http.Response> deletePromotion({required int promotionId}) async {
+    final url = Uri.parse('$_baseUrl/deletePromotion');
+
+    final headers = {'Content-Type': _contentType};
+
+    final body = {'promotion_id': promotionId.toString()};
 
     final response = await http.post(url, headers: headers, body: body);
 

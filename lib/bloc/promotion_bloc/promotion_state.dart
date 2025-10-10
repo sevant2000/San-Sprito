@@ -1,4 +1,5 @@
 import 'package:san_sprito/models/create_promotion_response.dart';
+import 'package:san_sprito/models/delete_promotion_response.dart';
 import 'package:san_sprito/models/promotion_list_response.dart';
 
 abstract class CreatePromotionState {}
@@ -30,4 +31,9 @@ class UpdatePromotionSuccess extends CreatePromotionState {
 class PromotionListSuccess extends CreatePromotionState {
   final PromotionListResponse promotionListResponse;
   PromotionListSuccess({required this.promotionListResponse});
+}
+
+class DeletePromotionSuccess extends CreatePromotionState {
+  final DeletePromotionResponse deletePromotionResponse;
+  DeletePromotionSuccess({required this.deletePromotionResponse});
 }

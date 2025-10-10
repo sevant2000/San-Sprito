@@ -31,3 +31,11 @@ class UpdatePromotionEvent extends CreatePromotionEventClass {
     required this.promotionId,
   });
 }
+
+class DeletePromotionEvent extends CreatePromotionEventClass {
+  final int promotionId;
+
+  DeletePromotionEvent({
+    required this.promotionId,
+  });
+}

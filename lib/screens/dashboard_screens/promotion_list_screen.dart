@@ -1,23 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:san_sprito/bloc/assigned_shop_list/assigned_shop_list_bloc.dart';
-import 'package:san_sprito/bloc/assigned_shop_list/assigned_shop_list_event.dart';
-import 'package:san_sprito/bloc/assigned_shop_list/assigned_shop_list_state.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:san_sprito/bloc/promotion_bloc/promotion_bloc.dart';
 import 'package:san_sprito/bloc/promotion_bloc/promotion_event.dart';
 import 'package:san_sprito/bloc/promotion_bloc/promotion_state.dart';
 import 'package:san_sprito/common_widgets/color_constant.dart';
-import 'package:san_sprito/common_widgets/common_alert_dialog.dart';
 import 'package:san_sprito/common_widgets/common_app_bar.dart';
 import 'package:san_sprito/common_widgets/common_button.dart';
-import 'package:san_sprito/common_widgets/common_remark_dialog.dart';
 import 'package:san_sprito/common_widgets/common_toast_widget.dart';
 import 'package:san_sprito/common_widgets/navigation_helper.dart';
 import 'package:san_sprito/common_widgets/shared_pref.dart';
-import 'package:san_sprito/models/assigned_shop_list_response.dart';
 import 'package:san_sprito/models/promotion_list_response.dart';
 import 'package:san_sprito/screens/dashboard_screens/add_promotion_screen.dart';
-import 'package:san_sprito/screens/dashboard_screens/salesmen_dashboard_screen.dart';
 
 class PromotionListScreen extends StatefulWidget {
   const PromotionListScreen({super.key});
@@ -114,10 +108,15 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
               "categoryName": assignedShopListData?[index].categoryName ?? "",
             };
           });
-
-          // Set filteredData to full list initially
           _filteredData = List.from(_data!);
           isLoad = false;
+        } else if (state is DeletePromotionSuccess) {
+          Fluttertoast.showToast(
+            msg:
+                state.deletePromotionResponse.data?.message ??
+                "Product Deleted Successfully",
+          );
+          context.read<CreatePromotionBloc>().add(PromotionListEvent());
         } else if (state is CreatePromotionFailure) {
           isLoad = false;
           ToastService.showError("Something went wrong");
@@ -166,7 +165,7 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
                                   NavigationHelper.navigate(
                                     context,
                                     AddPromotionScreen(),
-                                  ).then((val){
+                                  ).then((val) {
                                     getUserIdAndLoadData();
                                   });
                                 },
@@ -250,13 +249,19 @@ class ShopDataSource extends DataTableSource {
         DataCell(
           InkWell(
             onTap: () {
-              // NavigationHelper.navigate(
-              //   context,
-              //   SalesmanStockDashboard(
-              //     shopId: shop["id"],
-              //     shopName: shop["shopName"],
-              //   ),
-              // );
+              NavigationHelper.navigate(
+                context,
+                AddPromotionScreen(
+                  promoId: shop["id"],
+                  shop: shop,
+                  comeFromPromoList: true,
+                ),
+              ).then((val) {
+                if (context.mounted) {
+                  context.read<CreatePromotionBloc>().add(PromotionListEvent());
+                }
+              });
+              ;
             },
             child: Text(
               shop["shopName"] ?? "",
@@ -272,28 +277,96 @@ class ShopDataSource extends DataTableSource {
         DataCell(Text(shop["salesmenName"] ?? "")),
         DataCell(Text(shop["categoryName"] ?? "")),
         DataCell(
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: CommonColor.logoBGColor,
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: CommonColor.logoBGColor,
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.edit, color: Colors.white, size: 15),
+                    onPressed: () {
+                      NavigationHelper.navigate(
+                        context,
+                        AddPromotionScreen(
+                          promoId: shop["id"],
+                          shop: shop,
+                          comeFromPromoList: true,
+                        ),
+                      ).then((val) {
+                        if (context.mounted) {
+                          context.read<CreatePromotionBloc>().add(
+                            PromotionListEvent(),
+                          );
+                        }
+                      });
+                    },
+                  ),
+                ),
               ),
-              child: IconButton(
-                icon: Icon(Icons.edit, color: Colors.white, size: 15),
-                onPressed: () {
-                  NavigationHelper.navigate(context, AddPromotionScreen(
-                    promoId: shop["id"],
-                    shop: shop,
-                    comeFromPromoList: true,
-                  ),);
-                },
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: CommonColor.logoBGColor,
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.delete, color: Colors.white, size: 15),
+                    onPressed: () async {
+                      final bool confirmDelete =
+                          await showDeleteConfirmationDialog(context, shop["id"] ?? "");
+                      if (confirmDelete && context.mounted) {
+
+                      } else {}
+                    },
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ],
     );
+  }
+
+  Future<bool> showDeleteConfirmationDialog(BuildContext context, String id) async {
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: false, // prevent closing by tapping outside
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              title: const Text(
+                'Confirm Delete',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: const Text('Are you sure you want to delete this item?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                CommonButton(onPressed: () {
+                  context.read<CreatePromotionBloc>().add(
+                    DeletePromotionEvent(
+                      promotionId: int.parse(id),
+                    ),
+                  );
+                  debugPrint("dsjhfgjh");
+                  Navigator.pop(context);
+                }, text: "Delete"),
+              ],
+            );
+          },
+        ) ??
+        false; // returns false if dialog dismissed without pressing any button
   }
 
   @override

@@ -163,7 +163,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                 backgroundColor: CommonColor.logoBGColor,
               );
               Navigator.pop(context);
-              Navigator.pop(context);
+              // Navigator.pop(context);
               isLoad = false;
             } else if (state is CreatePromotionFailure) {
               ToastService.showError(state.error);
@@ -333,10 +333,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                                       );
                                     }
                                   },
-                                  backgroundColor:
-                                      widget.comeFromPromoList ?? false
-                                          ? Colors.amber
-                                          : CommonColor.logoBGColor,
+                                  backgroundColor: CommonColor.logoBGColor,
                                   text:
                                       widget.comeFromPromoList ?? false
                                           ? "Update promotion"
