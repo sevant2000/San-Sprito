@@ -126,10 +126,9 @@ class ApiService {
   }) async {
     final url = Uri.parse('$_baseUrl/save_remark');
 
-    var request =
-        http.MultipartRequest('POST', url)
-          ..fields['shop_id'] = shopId
-          ..fields['message'] = message;
+    var request = http.MultipartRequest('POST', url)
+      ..fields['shop_id'] = shopId
+      ..fields['message'] = message;
 
     var streamedResponse = await request.send();
 
@@ -144,12 +143,11 @@ class ApiService {
   }) async {
     final url = Uri.parse('$_baseUrl/create_shop_stock');
 
-    var request =
-        http.MultipartRequest('POST', url)
-          ..fields['login_id'] = loginId
-          ..fields['shop_id'] = shopId
-          ..fields['login_location'] = loginLocation
-          ..fields['device_name'] = deviceName;
+    var request = http.MultipartRequest('POST', url)
+      ..fields['login_id'] = loginId
+      ..fields['shop_id'] = shopId
+      ..fields['login_location'] = loginLocation
+      ..fields['device_name'] = deviceName;
 
     var streamedResponse = await request.send();
 
@@ -237,7 +235,7 @@ class ApiService {
     String shopId,
     List<File> imageFiles,
   ) async {
-      final url = Uri.parse('$_baseUrl/shop_photos');
+    final url = Uri.parse('$_baseUrl/shop_photos');
 
     final request = http.MultipartRequest('POST', url);
     request.fields['shop_id'] = shopId;
@@ -276,13 +274,12 @@ class ApiService {
   }) async {
     final url = Uri.parse('$_baseUrl/createPromotion');
 
-    var request =
-        http.MultipartRequest('POST', url)
-          ..fields['shop_id'] = shopId
-          ..fields['salesman_id'] = salesmanId
-          ..fields['brand_name'] = brandName
-          ..fields['no_of_bottles'] = noOfBottles
-          ..fields['categoryName'] = categoryName;
+    var request = http.MultipartRequest('POST', url)
+      ..fields['shop_id'] = shopId
+      ..fields['salesman_id'] = salesmanId
+      ..fields['brand_name'] = brandName
+      ..fields['no_of_bottles'] = noOfBottles
+      ..fields['categoryName'] = categoryName;
 
     var streamedResponse = await request.send();
     return await http.Response.fromStream(streamedResponse);

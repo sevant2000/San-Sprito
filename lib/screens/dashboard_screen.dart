@@ -11,6 +11,7 @@ import 'package:san_sprito/common_widgets/common_toast_widget.dart';
 import 'package:san_sprito/common_widgets/location_helper.dart';
 import 'package:san_sprito/common_widgets/shared_pref.dart';
 import 'package:san_sprito/models/dashboard_data_response_model.dart';
+import 'package:san_sprito/screens/dashboard_screens/bar_screen.dart';
 import 'package:san_sprito/screens/dashboard_screens/inbox_screeen.dart';
 import 'package:san_sprito/screens/dashboard_screens/priority_stock_screen.dart';
 import 'package:san_sprito/screens/dashboard_screens/promotion_list_screen.dart';
@@ -31,6 +32,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   bool isShopExpanded = false;
+  bool isBarExpanded = false;
   int? touchedIndex;
   String? userId;
   DashBoardResponse dashBoardResponse = DashBoardResponse();
@@ -400,10 +402,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SizedBox(height: 10),
             Row(
               children: [
-                CircleAvatar(radius: 30, backgroundColor: CommonColor.mainBGColor),
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: CommonColor.mainBGColor,
+                ),
                 const SizedBox(width: 10),
                 Text(
-                 data?.username ?? "" ,
+                  data?.username ?? "",
                   style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
               ],
@@ -456,6 +461,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
               ),
+            ListTile(
+              leading: Image.asset(CommonImages.icBar, height: 30),
+              title: const Text("Bar", style: TextStyle(color: Colors.white)),
+              trailing: Icon(
+                isBarExpanded ? Icons.expand_less : Icons.expand_more,
+                color: Colors.white,
+              ),
+              onTap: () {
+                setState(() {
+                  isBarExpanded = !isBarExpanded;
+                });
+              },
+            ),
+            if (isBarExpanded)
+              Padding(
+                padding: const EdgeInsets.only(left: 40),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSubDrawerItem("Bar", () {
+                      NavigationHelper.navigate(context, BarListScreen());
+                    }),
+                    _buildSubDrawerItem("Bar stocks", () {
+                      NavigationHelper.navigate(context, ShopStock());
+                    }),
+                  ],
+                ),
+              ),
             _buildDrawerItem(
               CommonImages.icTargets,
               "Target",
@@ -481,7 +514,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               },
             ),
             _buildDrawerItem(
-              CommonImages.icPromotion2,
+              CommonImages.icPromotion,
               "Promotion",
               onTap: () {
                 NavigationHelper.navigate(context, PromotionListScreen());
