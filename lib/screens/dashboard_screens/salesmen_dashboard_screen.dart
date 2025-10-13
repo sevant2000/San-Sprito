@@ -578,7 +578,7 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: CommonColor.mainBGColor,
-          appBar: const CommonAppBar(title: "Salesman Dashboard"),
+          appBar: CommonAppBar(title: "Salesman Dashboard"),
           body:
               isLoad
                   ? Center(

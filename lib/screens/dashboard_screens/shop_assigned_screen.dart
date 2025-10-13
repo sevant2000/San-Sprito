@@ -129,7 +129,7 @@ class _ShopListScreenState extends State<ShopListScreen> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
-          appBar: const CommonAppBar(title: "Shop List"),
+          appBar: CommonAppBar(title: "Shop List"),
           body:
               isLoad
                   ? Center(

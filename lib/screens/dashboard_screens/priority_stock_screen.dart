@@ -138,7 +138,7 @@ class _StockListScreenState extends State<StockListScreen> {
 
         return Scaffold(
           backgroundColor: const Color(0xFFF5F5F5),
-          appBar: const CommonAppBar(title: "Priority Stock"),
+          appBar: CommonAppBar(title: "Priority Stock"),
           body: isLoad
               ? Center(child: CircularProgressIndicator(color: CommonColor.logoBGColor))
               : SingleChildScrollView(

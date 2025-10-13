@@ -195,7 +195,7 @@ class _InboxScreenState extends State<InboxScreen> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: const CommonAppBar(title: "Send Message", height: 230),
+          appBar: CommonAppBar(title: "Send Message", height: 230),
           backgroundColor: Colors.grey.shade300,
           body:
               isLoad

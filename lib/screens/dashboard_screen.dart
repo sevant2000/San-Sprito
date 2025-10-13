@@ -16,7 +16,7 @@ import 'package:san_sprito/screens/dashboard_screens/priority_stock_screen.dart'
 import 'package:san_sprito/screens/dashboard_screens/sales_target_screen.dart';
 import 'package:san_sprito/screens/dashboard_screens/shop_assigned_screen.dart';
 import 'package:san_sprito/screens/dashboard_screens/shop_stock.dart';
-import 'package:san_sprito/screens/dashboard_screens/warehouse_stock_screen.dart';
+// import 'package:san_sprito/screens/dashboard_screens/warehouse_stock_screen.dart';
 import 'package:san_sprito/screens/login_screen.dart';
 import '../common_widgets/images_constant/common_images.dart';
 import '../common_widgets/navigation_helper.dart';
@@ -392,7 +392,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildDrawer(DashBoardUserData? data) {
     return Drawer(
       child: Container(
-        color: Colors.pink[800],
+        color: CommonColor.logoBGColor,
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
           children: [
@@ -462,16 +462,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 NavigationHelper.navigate(context, SalesTargetScreen());
               },
             ),
-            _buildDrawerItem(
-              CommonImages.icWarehouse,
-              "Warehouse stock",
-              onTap: () {
-                NavigationHelper.navigate(
-                  context,
-                  GovtWarehouseInventoryScreen(),
-                );
-              },
-            ),
+            // _buildDrawerItem(
+            //   CommonImages.icWarehouse,
+            //   "Warehouse stock",
+            //   onTap: () {
+            //     NavigationHelper.navigate(
+            //       context,
+            //       GovtWarehouseInventoryScreen(),
+            //     );
+            //   },
+            // ),
             _buildDrawerItem(
               CommonImages.icPriority,
               "Priority Stock",

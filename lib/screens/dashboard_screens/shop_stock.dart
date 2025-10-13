@@ -57,7 +57,7 @@ class _ShopStockState extends State<ShopStock> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: const CommonAppBar(title: "Shop Stock"),
+          appBar: CommonAppBar(title: "Shop Stock"),
           backgroundColor: Colors.white,
           body:
               isLoad

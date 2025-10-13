@@ -150,30 +150,45 @@ class _LoginScreenState extends State<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 70,
-                    vertical: 120,
+                    vertical: 100,
                   ),
                   child: Container(
                     alignment: Alignment.center,
                     color: CommonColor.logoBGColor,
-                    height: 160,
-                    child: Image.asset(
-                      CommonImages.logo,
-                      alignment: Alignment.topCenter,
-                      height: 120,
-                      fit: BoxFit.cover,
-                      color: Colors.white,
+                    height: 200,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          CommonImages.logo,
+                          alignment: Alignment.topCenter,
+                          height: 120,
+                          fit: BoxFit.cover,
+                          color: Colors.white,
+                        ),
+                        SizedBox(height: 15,),
+                        boldText(txt: "Rajasthan Chapter", textColor: Colors.black)
+                      ],
                     ),
                   ),
                 ),
+                
                 Opacity(
-                  opacity: 0.3,
-                  child: Image.asset(
-                    CommonImages.mainLogoImage,
-                    alignment: Alignment.topCenter,
-                    height: 500,
-                    fit: BoxFit.cover,
+                  opacity: 0.0,
+                  child: Column(
+                    children: [
+                      Image.asset(
+                        CommonImages.mainLogoImage,
+                        alignment: Alignment.topCenter,
+                        height: 500,
+                        fit: BoxFit.cover,
+                      ),
+                      
+                    ],
                   ),
                 ),
+            
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
@@ -194,6 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          
                           boldText(txt: "Salesman Log in"),
                           SizedBox(height: 30),
                           headerText(txt: "Username"),
@@ -250,11 +266,11 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget boldText({required String txt}) {
+  Widget boldText({required String txt, Color? textColor}) {
     return Text(
       txt,
       style: TextStyle(
-        color: CommonColor.logoBGColor,
+        color: textColor ?? CommonColor.logoBGColor,
         fontSize: 20,
         fontWeight: FontWeight.bold,
       ),

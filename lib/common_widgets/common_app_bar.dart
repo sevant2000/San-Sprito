@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:san_sprito/common_widgets/color_constant.dart';
 import 'images_constant/common_images.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -16,9 +17,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title,
     this.subtitle,
     this.height = 210.0,
-    this.backgroundColor = const Color(
-      0xFF9D2A53,
-    ), // Dark pink tone from design
+    this.backgroundColor = CommonColor.logoBGColor, // Dark pink tone from design
     this.titleStyle,
     this.subtitleStyle,
     this.roundedBottom = true,
