@@ -7,14 +7,14 @@ class BarListEvent extends BarListEventClass {
 }
 
 class SaveBarRemarkEvent extends BarListEventClass {
-  final String shopId;
+  final String barId;
   final String message;
 
-  SaveBarRemarkEvent({required this.shopId, required this.message});
+  SaveBarRemarkEvent({required this.barId, required this.message});
 }
 
 class UpdateBarStatusEvent extends BarListEventClass {
-  final String shopId;
+  final String barId;
 
-  UpdateBarStatusEvent({required this.shopId});
+  UpdateBarStatusEvent({required this.barId});
 }

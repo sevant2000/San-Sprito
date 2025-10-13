@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:san_sprito/bloc/assigned_shop_list/assigned_shop_list_bloc.dart';
 import 'package:san_sprito/bloc/bar_list/bar_list_bloc.dart';
+import 'package:san_sprito/bloc/bar_salesman_dashboard/bar_salesman_dashbard_bloc.dart';
 import 'package:san_sprito/bloc/dashBoard/dash_board_bloc.dart';
 import 'package:san_sprito/bloc/main_bloc/login_bloc.dart';
 import 'package:san_sprito/bloc/priority_stock/priority_stock_bloc.dart';
@@ -13,6 +14,8 @@ import 'package:san_sprito/bloc/shop_stocks/shop_stock_bloc.dart';
 import 'package:san_sprito/bloc/ware_house_stock/ware_house_stock_bloc.dart';
 import 'package:san_sprito/screens/splash_screen.dart';
 import 'package:san_sprito/services/api_services.dart';
+
+import 'bloc/bar_stocks/bar_stock_bloc.dart';
 
 void main() {
   runApp(const MyApp());
@@ -82,6 +85,17 @@ class MyApp extends StatelessWidget {
             create:
                 (context) =>
                     BarListBloc(apiService: context.read<ApiService>()),
+          ),
+          BlocProvider<BarSalesmanDashboardBloc>(
+            create:
+                (context) => BarSalesmanDashboardBloc(
+                  apiService: context.read<ApiService>(),
+                ),
+          ),
+          BlocProvider<BarStockBloc>(
+            create:
+                (context) =>
+                    BarStockBloc(apiService: context.read<ApiService>()),
           ),
 
           // Add other BlocProviders here (e.g., UserBloc)

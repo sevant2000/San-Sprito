@@ -17,7 +17,7 @@ class BarListResponse {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['status'] = status;
     data['message'] = message;
     if (this.data != null) {
@@ -30,46 +30,41 @@ class BarListResponse {
 class BarListData {
   String? id;
   String? name;
-  String? licence;
   String? district;
-  String? contactPerson;
-  String? contactNumber;
+  String? category;
+  String? classification;
   String? status;
   String? salesmanId;
   String? message;
 
-  BarListData({
-    this.id,
-    this.name,
-    this.licence,
-    this.district,
-    this.contactPerson,
-    this.contactNumber,
-    this.status,
-    this.salesmanId,
-    this.message,
-  });
+  BarListData(
+      {this.id,
+        this.name,
+        this.district,
+        this.category,
+        this.classification,
+        this.status,
+        this.salesmanId,
+        this.message});
 
   BarListData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
-    licence = json['licence'];
     district = json['district'];
-    contactPerson = json['contact_person'];
-    contactNumber = json['contact_number'];
+    category = json['category'];
+    classification = json['classification'];
     status = json['status'];
     salesmanId = json['salesman_id'];
     message = json['message'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['id'] = id;
     data['name'] = name;
-    data['licence'] = licence;
     data['district'] = district;
-    data['contact_person'] = contactPerson;
-    data['contact_number'] = contactNumber;
+    data['category'] = category;
+    data['classification'] = classification;
     data['status'] = status;
     data['salesman_id'] = salesmanId;
     data['message'] = message;

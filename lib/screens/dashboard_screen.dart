@@ -12,6 +12,7 @@ import 'package:san_sprito/common_widgets/location_helper.dart';
 import 'package:san_sprito/common_widgets/shared_pref.dart';
 import 'package:san_sprito/models/dashboard_data_response_model.dart';
 import 'package:san_sprito/screens/dashboard_screens/bar_screen.dart';
+import 'package:san_sprito/screens/dashboard_screens/bar_stock_screen.dart';
 import 'package:san_sprito/screens/dashboard_screens/inbox_screeen.dart';
 import 'package:san_sprito/screens/dashboard_screens/priority_stock_screen.dart';
 import 'package:san_sprito/screens/dashboard_screens/promotion_list_screen.dart';
@@ -484,7 +485,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       NavigationHelper.navigate(context, BarListScreen());
                     }),
                     _buildSubDrawerItem("Bar stocks", () {
-                      NavigationHelper.navigate(context, ShopStock());
+                      NavigationHelper.navigate(context, BarStockScreen());
                     }),
                   ],
                 ),

@@ -49,8 +49,8 @@ class BarListBloc extends Bloc<BarListEventClass, BarListStateClass> {
       emit(BarListLoading());
 
       try {
-        final http.Response response = await apiService.saveRemark(
-          shopId: event.shopId,
+        final http.Response response = await apiService.saveBarRemark(
+          barId: event.barId,
           message: event.message,
         );
 
@@ -81,7 +81,7 @@ class BarListBloc extends Bloc<BarListEventClass, BarListStateClass> {
 
       try {
         final http.Response response = await apiService.updateShopStatus(
-          shopId: event.shopId,
+          shopId: event.barId,
         );
 
         debugPrint("✅ Status code: ${response.statusCode}");

@@ -4,14 +4,13 @@ import 'package:san_sprito/bloc/bar_list/bar_list_bloc.dart';
 import 'package:san_sprito/bloc/bar_list/bar_list_event.dart';
 import 'package:san_sprito/bloc/bar_list/bar_list_state.dart';
 import 'package:san_sprito/common_widgets/color_constant.dart';
-import 'package:san_sprito/common_widgets/common_alert_dialog.dart';
 import 'package:san_sprito/common_widgets/common_app_bar.dart';
 import 'package:san_sprito/common_widgets/common_remark_dialog.dart';
 import 'package:san_sprito/common_widgets/common_toast_widget.dart';
 import 'package:san_sprito/common_widgets/navigation_helper.dart';
 import 'package:san_sprito/common_widgets/shared_pref.dart';
 import 'package:san_sprito/models/bar_list_response.dart';
-import 'package:san_sprito/screens/dashboard_screens/salesmen_dashboard_screen.dart';
+import 'package:san_sprito/screens/dashboard_screens/bar_salesman_dasjhboard_screen.dart';
 
 class BarListScreen extends StatefulWidget {
   const BarListScreen({super.key});
@@ -99,13 +98,10 @@ class _BarListScreenState extends State<BarListScreen> {
           _data = List.generate(barListData?.length ?? 0, (index) {
             return {
               "id": barListData?[index].id ?? "",
-              "shopName": barListData?[index].name ?? "",
-              "licence": barListData?[index].licence ?? "",
+              "name": barListData?[index].name ?? "",
               "district": barListData?[index].district ?? "",
-              "licenceName": barListData?[index].contactPerson ?? "",
-              "contact": barListData?[index].contactNumber ?? "",
-              "status": barListData?[index].status ?? "",
-              "shop": "LOGIN",
+              "category": barListData?[index].category ?? "",
+              "classification": barListData?[index].classification ?? "",
               "remark": barListData?[index].message ?? "",
             };
           });
@@ -113,17 +109,13 @@ class _BarListScreenState extends State<BarListScreen> {
           // Set filteredData to full list initially
           _filteredData = List.from(_data!);
           isLoad = false;
+        } else if (state is SaveBarRemarkState) {
+          ToastService.showSuccess("Remark saved successfully");
+          getUserIdAndLoadData();
+        } else if (state is BarListFailure) {
+          isLoad = false;
+          ToastService.showError("Something went wrong");
         }
-        // else if (state is SaveRemarkSuccessState) {
-        //   ToastService.showSuccess("Remark saved successfully");
-        //   getUserIdAndLoadData();
-        // } else if (state is UpdateStatusSuccessState) {
-        //   ToastService.showSuccess("Status Updated Successfully");
-        //   getUserIdAndLoadData();
-        // } else if (state is AssignedShopListFailure) {
-        //   isLoad = false;
-        //   ToastService.showError("Something went wrong");
-        // }
       },
       builder: (context, state) {
         return Scaffold(
@@ -170,13 +162,10 @@ class _BarListScreenState extends State<BarListScreen> {
                             },
                             columns: const [
                               DataColumn(label: Text("#")),
-                              DataColumn(label: Text("Shop Name")),
-                              DataColumn(label: Text("Licencee")),
+                              DataColumn(label: Text("Name")),
                               DataColumn(label: Text("District")),
-                              DataColumn(label: Text("Licence name")),
-                              DataColumn(label: Text("Contact")),
-                              DataColumn(label: Text("Status")),
-                              DataColumn(label: Text("Shop")),
+                              DataColumn(label: Text("Category")),
+                              DataColumn(label: Text("Classification")),
                               DataColumn(label: Text("Remark")),
                             ],
                             source: ShopDataSource(
@@ -236,14 +225,14 @@ class ShopDataSource extends DataTableSource {
             onTap: () {
               NavigationHelper.navigate(
                 context,
-                SalesmanStockDashboard(
+                BarSalesmanDashboardScreen(
                   shopId: shop["id"],
-                  shopName: shop["shopName"],
+                  shopName: shop["name"],
                 ),
               );
             },
             child: Text(
-              shop["shopName"] ?? "",
+              shop["name"] ?? "",
               style: TextStyle(
                 color: Colors.blue,
                 decoration: TextDecoration.underline,
@@ -251,63 +240,9 @@ class ShopDataSource extends DataTableSource {
             ),
           ),
         ),
-        DataCell(Text(shop["licence"] ?? "")),
         DataCell(Text(shop["district"] ?? "")),
-        DataCell(Text(shop["licenceName"] ?? "")),
-        DataCell(Text(shop["contact"] ?? "")),
-        DataCell(
-          InkWell(
-            onTap: () {
-              showConfirmationDialog(
-                context: context,
-                confirmText: "Yes",
-                cancelText: "No",
-                title: "Are you sure want to change the status",
-                onDeletePressed: () {
-                  context.read<BarListBloc>().add(
-                    UpdateBarStatusEvent(shopId: shopId ?? ""),
-                  );
-                  Navigator.pop(context);
-                },
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color:
-                    shop["status"] == "1" ? Colors.green[100] : Colors.red[100],
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                shop["status"] == "1" ? "ACTIVE" : "NOT ACTIVE",
-                style: TextStyle(
-                  color: shop["status"] == "1" ? Colors.green : Colors.red,
-                ),
-              ),
-            ),
-          ),
-        ),
-        DataCell(
-          InkWell(
-            onTap: () {
-              NavigationHelper.navigate(
-                context,
-                SalesmanStockDashboard(
-                  shopId: shop["id"],
-                  shopName: shop["shopName"],
-                ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.blue[100],
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Text("LOGIN", style: TextStyle(color: Colors.blue)),
-            ),
-          ),
-        ),
+        DataCell(Text(shop["category"] ?? "")),
+        DataCell(Text(shop["classification"] ?? "")),
         DataCell(
           Row(
             children: [
@@ -325,7 +260,7 @@ class ShopDataSource extends DataTableSource {
                         onSave: (value) {
                           context.read<BarListBloc>().add(
                             SaveBarRemarkEvent(
-                              shopId: shopId ?? "",
+                              barId: shopId ?? "",
                               message: value,
                             ),
                           );
@@ -351,7 +286,7 @@ class ShopDataSource extends DataTableSource {
 
                           context.read<BarListBloc>().add(
                             SaveBarRemarkEvent(
-                              shopId: shopId ?? "",
+                              barId: shopId ?? "",
                               message: value,
                             ),
                           );

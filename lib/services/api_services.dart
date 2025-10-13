@@ -18,11 +18,11 @@ class ApiService {
   }
 
   Future<http.Response> login(
-      String username,
-      String password,
-      String loginLocation,
-      String deviceName,
-      ) async {
+    String username,
+    String password,
+    String loginLocation,
+    String deviceName,
+  ) async {
     const endpoint = 'login';
     final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
@@ -134,9 +134,10 @@ class ApiService {
 
     _printApiDetails(endpoint, {'shop_id': shopId, 'message': message});
 
-    var request = http.MultipartRequest('POST', url)
-      ..fields['shop_id'] = shopId
-      ..fields['message'] = message;
+    var request =
+        http.MultipartRequest('POST', url)
+          ..fields['shop_id'] = shopId
+          ..fields['message'] = message;
 
     var streamedResponse = await request.send();
     return await http.Response.fromStream(streamedResponse);
@@ -158,11 +159,12 @@ class ApiService {
       'device_name': deviceName,
     });
 
-    var request = http.MultipartRequest('POST', url)
-      ..fields['login_id'] = loginId
-      ..fields['shop_id'] = shopId
-      ..fields['login_location'] = loginLocation
-      ..fields['device_name'] = deviceName;
+    var request =
+        http.MultipartRequest('POST', url)
+          ..fields['login_id'] = loginId
+          ..fields['shop_id'] = shopId
+          ..fields['login_location'] = loginLocation
+          ..fields['device_name'] = deviceName;
 
     var streamedResponse = await request.send();
     return await http.Response.fromStream(streamedResponse);
@@ -186,7 +188,10 @@ class ApiService {
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({"shop_id": shopId, "stock": stockList});
 
-    _printApiDetails(endpoint, {"shop_id": shopId, "stock_count": stockList.length});
+    _printApiDetails(endpoint, {
+      "shop_id": shopId,
+      "stock_count": stockList.length,
+    });
     return await http.post(url, headers: headers, body: body);
   }
 
@@ -236,18 +241,23 @@ class ApiService {
   }
 
   Future<http.Response> uploadShopPhotos(
-      String shopId,
-      List<File> imageFiles,
-      ) async {
+    String shopId,
+    List<File> imageFiles,
+  ) async {
     const endpoint = 'shop_photos';
     final url = Uri.parse('$_baseUrl/$endpoint');
 
-    _printApiDetails(endpoint, {'shop_id': shopId, 'photos': imageFiles.length});
+    _printApiDetails(endpoint, {
+      'shop_id': shopId,
+      'photos': imageFiles.length,
+    });
 
     final request = http.MultipartRequest('POST', url);
     request.fields['shop_id'] = shopId;
     for (var file in imageFiles) {
-      request.files.add(await http.MultipartFile.fromPath('photos[]', file.path));
+      request.files.add(
+        await http.MultipartFile.fromPath('photos[]', file.path),
+      );
     }
 
     request.headers.addAll({'Content-Type': 'multipart/form-data'});
@@ -261,7 +271,8 @@ class ApiService {
 
     _printApiDetails(endpoint, {'shop_id': shopId});
 
-    var request = http.MultipartRequest('POST', url)..fields['shop_id'] = shopId;
+    var request = http.MultipartRequest('POST', url)
+      ..fields['shop_id'] = shopId;
     var streamedResponse = await request.send();
     return await http.Response.fromStream(streamedResponse);
   }
@@ -284,12 +295,13 @@ class ApiService {
       'categoryName': categoryName,
     });
 
-    var request = http.MultipartRequest('POST', url)
-      ..fields['shop_id'] = shopId
-      ..fields['salesman_id'] = salesmanId
-      ..fields['brand_name'] = brandName
-      ..fields['no_of_bottles'] = noOfBottles
-      ..fields['categoryName'] = categoryName;
+    var request =
+        http.MultipartRequest('POST', url)
+          ..fields['shop_id'] = shopId
+          ..fields['salesman_id'] = salesmanId
+          ..fields['brand_name'] = brandName
+          ..fields['no_of_bottles'] = noOfBottles
+          ..fields['categoryName'] = categoryName;
 
     var streamedResponse = await request.send();
     return await http.Response.fromStream(streamedResponse);
@@ -364,9 +376,10 @@ class ApiService {
 
     _printApiDetails(endpoint, {'bar_id': barId, 'message': message});
 
-    var request = http.MultipartRequest('POST', url)
-      ..fields['bar_id'] = barId
-      ..fields['message'] = message;
+    var request =
+        http.MultipartRequest('POST', url)
+          ..fields['bar_id'] = barId
+          ..fields['message'] = message;
 
     var streamedResponse = await request.send();
     return await http.Response.fromStream(streamedResponse);
@@ -398,20 +411,21 @@ class ApiService {
       'device_name': deviceName,
     });
 
-    var request = http.MultipartRequest('POST', url)
-      ..fields['login_id'] = loginId
-      ..fields['bar_id'] = barId
-      ..fields['login_location'] = loginLocation
-      ..fields['device_name'] = deviceName;
+    var request =
+        http.MultipartRequest('POST', url)
+          ..fields['login_id'] = loginId
+          ..fields['bar_id'] = barId
+          ..fields['login_location'] = loginLocation
+          ..fields['device_name'] = deviceName;
 
     var streamedResponse = await request.send();
     return await http.Response.fromStream(streamedResponse);
   }
 
   Future<http.Response> uploadBarPhotos(
-      String barId,
-      List<File> imageFiles,
-      ) async {
+    String barId,
+    List<File> imageFiles,
+  ) async {
     const endpoint = 'bar_photos';
     final url = Uri.parse('$_baseUrl/$endpoint');
 
@@ -421,7 +435,9 @@ class ApiService {
     request.fields['bar_id'] = barId;
 
     for (var file in imageFiles) {
-      request.files.add(await http.MultipartFile.fromPath('photos[]', file.path));
+      request.files.add(
+        await http.MultipartFile.fromPath('photos[]', file.path),
+      );
     }
 
     request.headers.addAll({'Content-Type': 'multipart/form-data'});
@@ -438,12 +454,15 @@ class ApiService {
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({"bar_id": barId, "stock": stockList});
 
-    _printApiDetails(endpoint, {"bar_id": barId, "stock_count": stockList.length});
+    _printApiDetails(endpoint, {
+      "bar_id": barId,
+      "stock_count": stockList.length,
+    });
     return await http.post(url, headers: headers, body: body);
   }
 
   Future<http.Response> deleteBarStock(String barId) async {
-    final endpoint = 'deleteBarStock?bar_id=$barId';
+    final endpoint = 'deleteBarStock?stock_id=$barId';
     final url = Uri.parse('$_baseUrl/$endpoint');
 
     _printApiDetails(endpoint);
@@ -475,5 +494,15 @@ class ApiService {
     final request = http.MultipartRequest('POST', url)..fields.addAll(fields);
     final streamedResponse = await request.send();
     return await http.Response.fromStream(streamedResponse);
+  }
+
+  Future<http.Response> barStockListData(String userId) async {
+    const endpoint = 'bar_stock';
+    final url = Uri.parse('$_baseUrl/$endpoint');
+    final headers = {'Content-Type': _contentType};
+    final body = {'login_id': userId};
+
+    _printApiDetails(endpoint, body);
+    return await http.post(url, headers: headers, body: body);
   }
 }

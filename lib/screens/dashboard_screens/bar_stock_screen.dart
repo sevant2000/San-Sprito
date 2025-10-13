@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:san_sprito/bloc/shop_stocks/shop_stock_bloc.dart';
-import 'package:san_sprito/bloc/shop_stocks/shop_stock_event.dart';
-import 'package:san_sprito/bloc/shop_stocks/shop_stock_state.dart';
+import 'package:san_sprito/bloc/bar_stocks/bar_stock_bloc.dart';
+import 'package:san_sprito/bloc/bar_stocks/bar_stock_event.dart';
+import 'package:san_sprito/bloc/bar_stocks/bar_stock_state.dart';
 import 'package:san_sprito/common_widgets/color_constant.dart';
 import 'package:san_sprito/common_widgets/common_app_bar.dart';
 import 'package:san_sprito/common_widgets/common_button.dart';
 import 'package:san_sprito/common_widgets/shared_pref.dart';
-import 'package:san_sprito/models/shop_stock_data_response_model.dart';
+import 'package:san_sprito/models/get_bar_stock_response.dart';
 
 class BarStockScreen extends StatefulWidget {
   const BarStockScreen({super.key});
@@ -20,7 +20,7 @@ class BarStockScreen extends StatefulWidget {
 class _BarStockScreenState extends State<BarStockScreen> {
   bool isLoad = false;
   String? userId;
-  ShopStockData? shopStockData;
+  BarStockData? shopStockData;
 
   @override
   void initState() {
@@ -35,7 +35,7 @@ class _BarStockScreenState extends State<BarStockScreen> {
 
     if (userId != null && userId!.isNotEmpty) {
       // ignore: use_build_context_synchronously
-      context.read<ShopStockBloc>().add(ShopStockEvent(userId: userId ?? ""));
+      context.read<BarStockBloc>().add(BarStockEvent(userId: userId ?? ""));
     } else {
       debugPrint("UserId is null or empty — skipping API call");
     }
@@ -43,19 +43,19 @@ class _BarStockScreenState extends State<BarStockScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ShopStockBloc, ShopStockState>(
+    return BlocConsumer<BarStockBloc, BarStockState>(
       listener: (context, state) {
-        if (state is ShopStockLoading) {
+        if (state is BarStockLoading) {
           isLoad = true;
-        } else if (state is ShopStockSuccess) {
-          shopStockData = state.shopStockResponseModel.data;
+        } else if (state is BarStockSuccess) {
+          shopStockData = state.barStockDataResponse.data;
           debugPrint("shopStockData---${shopStockData?.stocks?.length}");
           isLoad = false;
-        } else if (state is ShopStockFailure) {}
+        } else if (state is BarStockFailure) {}
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: const CommonAppBar(title: "Shop Stock"),
+          appBar: const CommonAppBar(title: "Bar Stock"),
           backgroundColor: Colors.white,
           body:
               isLoad
@@ -85,7 +85,7 @@ class _BarStockScreenState extends State<BarStockScreen> {
                       Expanded(
                         child: SingleChildScrollView(
                           child: PaginatedDataTable(
-                            header: const Text('Stock Management'),
+                            header: const Text('Bar Stock Management'),
                             columns: const [
                               DataColumn(label: Text('#')),
                               DataColumn(label: Text('Shop')),
@@ -117,7 +117,7 @@ class _BarStockScreenState extends State<BarStockScreen> {
 }
 
 class _ShopStockTableSource extends DataTableSource {
-  final ShopStockData? shopStockData;
+  final BarStockData? shopStockData;
 
   _ShopStockTableSource({required this.shopStockData});
 
@@ -140,7 +140,7 @@ class _ShopStockTableSource extends DataTableSource {
     return DataRow(
       cells: [
         DataCell(Text('${index + 1}', style: TextStyle())),
-        DataCell(Text(stock.shopName ?? '')),
+        DataCell(Text(stock.barName ?? '')),
         DataCell(
           Text(stock.brandName ?? ''),
         ), // Update these lines as per your model
