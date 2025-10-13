@@ -11,5 +11,6 @@ class CommonImages {
   static const String icLogOut = "assets/images/ic_log_out.png";
   static const String icLogOutBlue = "assets/images/ic_log_out_blue.png";
   static const String icRajTxt = "assets/images/ic_txt_raj.jpg";
+  static const String icPromotion = "assets/images/ic_proomo.png";
 
 }

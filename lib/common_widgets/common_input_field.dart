@@ -31,7 +31,10 @@ class CommonInputField extends StatelessWidget {
     this.maxLines = 1,
     this.textInputAction,
     this.onFieldSubmitted,
-    this.contentPadding = const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+    this.contentPadding = const EdgeInsets.symmetric(
+      horizontal: 12,
+      vertical: 14,
+    ),
   });
 
   @override
@@ -47,8 +50,10 @@ class CommonInputField extends StatelessWidget {
       textInputAction: textInputAction,
       onFieldSubmitted: onFieldSubmitted,
       decoration: InputDecoration(
+        border: OutlineInputBorder(),
         hintText: hintText,
-        hintStyle: hintStyle ??
+        hintStyle:
+            hintStyle ??
             const TextStyle(
               color: Colors.grey,
               fontSize: 12,
@@ -57,7 +62,6 @@ class CommonInputField extends StatelessWidget {
         suffixIcon: suffixIcon,
         prefixIcon: prefixIcon,
         contentPadding: contentPadding,
-
       ),
     );
   }

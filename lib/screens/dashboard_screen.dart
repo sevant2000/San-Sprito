@@ -13,6 +13,7 @@ import 'package:san_sprito/common_widgets/shared_pref.dart';
 import 'package:san_sprito/models/dashboard_data_response_model.dart';
 import 'package:san_sprito/screens/dashboard_screens/inbox_screeen.dart';
 import 'package:san_sprito/screens/dashboard_screens/priority_stock_screen.dart';
+import 'package:san_sprito/screens/dashboard_screens/promotion_list_screen.dart';
 import 'package:san_sprito/screens/dashboard_screens/sales_target_screen.dart';
 import 'package:san_sprito/screens/dashboard_screens/shop_assigned_screen.dart';
 import 'package:san_sprito/screens/dashboard_screens/shop_stock.dart';
@@ -399,10 +400,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SizedBox(height: 10),
             Row(
               children: [
-                CircleAvatar(radius: 30, backgroundColor: CommonColor.mainBGColor),
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: CommonColor.mainBGColor,
+                ),
                 const SizedBox(width: 10),
                 Text(
-                 data?.username ?? "" ,
+                  data?.username ?? "",
                   style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
               ],
@@ -477,6 +481,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               "Priority Stock",
               onTap: () {
                 NavigationHelper.navigate(context, StockListScreen());
+              },
+            ),
+            _buildDrawerItem(
+              CommonImages.icPromotion,
+              "Promotion",
+              onTap: () {
+                NavigationHelper.navigate(context, PromotionListScreen());
               },
             ),
             StatefulBuilder(
