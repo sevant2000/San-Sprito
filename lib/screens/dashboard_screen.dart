@@ -17,7 +17,7 @@ import 'package:san_sprito/screens/dashboard_screens/priority_stock_screen.dart'
 import 'package:san_sprito/screens/dashboard_screens/promotion_list_screen.dart';
 import 'package:san_sprito/screens/dashboard_screens/sales_target_screen.dart';
 import 'package:san_sprito/screens/dashboard_screens/shop_assigned_screen.dart';
-import 'package:san_sprito/screens/dashboard_screens/shop_stock.dart';
+import 'package:san_sprito/screens/dashboard_screens/shop_stock_screen.dart';
 import 'package:san_sprito/screens/dashboard_screens/warehouse_stock_screen.dart';
 import 'package:san_sprito/screens/login_screen.dart';
 import '../common_widgets/images_constant/common_images.dart';

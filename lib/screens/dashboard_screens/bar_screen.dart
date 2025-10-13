@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:san_sprito/bloc/assigned_shop_list/assigned_shop_list_bloc.dart';
-import 'package:san_sprito/bloc/assigned_shop_list/assigned_shop_list_event.dart';
-import 'package:san_sprito/bloc/assigned_shop_list/assigned_shop_list_state.dart';
+import 'package:san_sprito/bloc/bar_list/bar_list_bloc.dart';
+import 'package:san_sprito/bloc/bar_list/bar_list_event.dart';
+import 'package:san_sprito/bloc/bar_list/bar_list_state.dart';
 import 'package:san_sprito/common_widgets/color_constant.dart';
 import 'package:san_sprito/common_widgets/common_alert_dialog.dart';
 import 'package:san_sprito/common_widgets/common_app_bar.dart';
@@ -10,7 +10,7 @@ import 'package:san_sprito/common_widgets/common_remark_dialog.dart';
 import 'package:san_sprito/common_widgets/common_toast_widget.dart';
 import 'package:san_sprito/common_widgets/navigation_helper.dart';
 import 'package:san_sprito/common_widgets/shared_pref.dart';
-import 'package:san_sprito/models/assigned_shop_list_response.dart';
+import 'package:san_sprito/models/bar_list_response.dart';
 import 'package:san_sprito/screens/dashboard_screens/salesmen_dashboard_screen.dart';
 
 class BarListScreen extends StatefulWidget {
@@ -26,10 +26,10 @@ class _BarListScreenState extends State<BarListScreen> {
   bool isLoad = false;
   String? userId;
 
-  List<AssignedShopListData>? assignedShopListData;
+  List<BarListData>? barListData;
   List<Map<String, String>>? _data; // Original full data
   List<Map<String, String>> _filteredData =
-  []; // Filtered data for search & pagination
+      []; // Filtered data for search & pagination
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -82,9 +82,7 @@ class _BarListScreenState extends State<BarListScreen> {
     debugPrint("gettingUserId: $userId");
 
     if (userId != null && userId!.isNotEmpty && mounted) {
-      context.read<AssignedShopListBloc>().add(
-        AssignedShopListEvent(userId: userId!),
-      );
+      context.read<BarListBloc>().add(BarListEvent(userId: userId ?? ""));
     } else {
       debugPrint("UserId is null or empty — skipping API call");
     }
@@ -92,122 +90,123 @@ class _BarListScreenState extends State<BarListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AssignedShopListBloc, AssignedShopListState>(
+    return BlocConsumer<BarListBloc, BarListStateClass>(
       listener: (context, state) {
-        if (state is AssignedShopListLoading) {
+        if (state is BarListLoading) {
           isLoad = true;
-        } else if (state is AssignedShopListSuccess) {
-          assignedShopListData = state.assignedShopListResponseList.data ?? [];
-          _data = List.generate(assignedShopListData?.length ?? 0, (index) {
+        } else if (state is BarListSuccess) {
+          barListData = state.barListResponse.data ?? [];
+          _data = List.generate(barListData?.length ?? 0, (index) {
             return {
-              "id": assignedShopListData?[index].id ?? "",
-              "shopName": assignedShopListData?[index].name ?? "",
-              "licence": assignedShopListData?[index].licence ?? "",
-              "district": assignedShopListData?[index].district ?? "",
-              "licenceName": assignedShopListData?[index].contactPerson ?? "",
-              "contact": assignedShopListData?[index].contactNumber ?? "",
-              "status": assignedShopListData?[index].status ?? "",
+              "id": barListData?[index].id ?? "",
+              "shopName": barListData?[index].name ?? "",
+              "licence": barListData?[index].licence ?? "",
+              "district": barListData?[index].district ?? "",
+              "licenceName": barListData?[index].contactPerson ?? "",
+              "contact": barListData?[index].contactNumber ?? "",
+              "status": barListData?[index].status ?? "",
               "shop": "LOGIN",
-              "remark": assignedShopListData?[index].message ?? "",
+              "remark": barListData?[index].message ?? "",
             };
           });
 
           // Set filteredData to full list initially
           _filteredData = List.from(_data!);
           isLoad = false;
-        } else if (state is SaveRemarkSuccessState) {
-          ToastService.showSuccess("Remark saved successfully");
-          getUserIdAndLoadData();
-        } else if (state is UpdateStatusSuccessState) {
-          ToastService.showSuccess("Status Updated Successfully");
-          getUserIdAndLoadData();
-        } else if (state is AssignedShopListFailure) {
-          isLoad = false;
-          ToastService.showError("Something went wrong");
         }
+        // else if (state is SaveRemarkSuccessState) {
+        //   ToastService.showSuccess("Remark saved successfully");
+        //   getUserIdAndLoadData();
+        // } else if (state is UpdateStatusSuccessState) {
+        //   ToastService.showSuccess("Status Updated Successfully");
+        //   getUserIdAndLoadData();
+        // } else if (state is AssignedShopListFailure) {
+        //   isLoad = false;
+        //   ToastService.showError("Something went wrong");
+        // }
       },
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
-          appBar: const CommonAppBar(title: "Shop List"),
+          appBar: const CommonAppBar(title: "Bar List"),
           body:
-          isLoad
-              ? Center(
-            child: CircularProgressIndicator(
-              color: CommonColor.logoBGColor,
-            ),
-          )
-              : SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: SizedBox(
-                      width: 300,
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Search by shop name',
-                          prefixIcon: const Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+              isLoad
+                  ? Center(
+                    child: CircularProgressIndicator(
+                      color: CommonColor.logoBGColor,
+                    ),
+                  )
+                  : SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: SizedBox(
+                              width: 300,
+                              child: TextField(
+                                controller: _searchController,
+                                decoration: InputDecoration(
+                                  hintText: 'Search by bar name',
+                                  prefixIcon: const Icon(Icons.search),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                onChanged: (value) => _applySearch(),
+                              ),
+                            ),
                           ),
-                        ),
-                        onChanged: (value) => _applySearch(),
+                          const SizedBox(height: 16),
+                          PaginatedDataTable(
+                            header: const Text("Bar List"),
+                            rowsPerPage: _rowsPerPage,
+                            availableRowsPerPage: const [10, 20, 30],
+                            onPageChanged: (start) {
+                              setState(() {
+                                _currentPage = start ~/ _rowsPerPage;
+                              });
+                            },
+                            columns: const [
+                              DataColumn(label: Text("#")),
+                              DataColumn(label: Text("Shop Name")),
+                              DataColumn(label: Text("Licencee")),
+                              DataColumn(label: Text("District")),
+                              DataColumn(label: Text("Licence name")),
+                              DataColumn(label: Text("Contact")),
+                              DataColumn(label: Text("Status")),
+                              DataColumn(label: Text("Shop")),
+                              DataColumn(label: Text("Remark")),
+                            ],
+                            source: ShopDataSource(
+                              _paginatedData,
+                              _currentPage * _rowsPerPage,
+                              context,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "Showing ${_paginatedData.length} of ${_filteredData.length} entries",
+                              ),
+                              const SizedBox(width: 20),
+                              IconButton(
+                                icon: const Icon(Icons.arrow_back),
+                                onPressed: _previousPage,
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.arrow_forward),
+                                onPressed: _nextPage,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  PaginatedDataTable(
-                    header: const Text("Shop List"),
-                    rowsPerPage: _rowsPerPage,
-                    availableRowsPerPage: const [10, 20, 30],
-                    onPageChanged: (start) {
-                      setState(() {
-                        _currentPage = start ~/ _rowsPerPage;
-                      });
-                    },
-                    columns: const [
-                      DataColumn(label: Text("#")),
-                      DataColumn(label: Text("Shop Name")),
-                      DataColumn(label: Text("Licencee")),
-                      DataColumn(label: Text("District")),
-                      DataColumn(label: Text("Licence name")),
-                      DataColumn(label: Text("Contact")),
-                      DataColumn(label: Text("Status")),
-                      DataColumn(label: Text("Shop")),
-                      DataColumn(label: Text("Remark")),
-                    ],
-                    source: ShopDataSource(
-                      _paginatedData,
-                      _currentPage * _rowsPerPage,
-                      context,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        "Showing ${_paginatedData.length} of ${_filteredData.length} entries",
-                      ),
-                      const SizedBox(width: 20),
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: _previousPage,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.arrow_forward),
-                        onPressed: _nextPage,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
         );
       },
     );
@@ -265,8 +264,8 @@ class ShopDataSource extends DataTableSource {
                 cancelText: "No",
                 title: "Are you sure want to change the status",
                 onDeletePressed: () {
-                  context.read<AssignedShopListBloc>().add(
-                    UpdateStatusEvent(shopId: shopId ?? ""),
+                  context.read<BarListBloc>().add(
+                    UpdateBarStatusEvent(shopId: shopId ?? ""),
                   );
                   Navigator.pop(context);
                 },
@@ -276,7 +275,7 @@ class ShopDataSource extends DataTableSource {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color:
-                shop["status"] == "1" ? Colors.green[100] : Colors.red[100],
+                    shop["status"] == "1" ? Colors.green[100] : Colors.red[100],
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -319,53 +318,53 @@ class ShopDataSource extends DataTableSource {
               ),
               shop["remark"]?.isNotEmpty ?? false
                   ? IconButton(
-                onPressed: () {
-                  showRemarkDialog(
-                    remarkController: dialogCtrl,
-                    context: context,
-                    onSave: (value) {
-                      context.read<AssignedShopListBloc>().add(
-                        SaveRemarkEvent(
-                          shopId: shopId ?? "",
-                          message: value,
-                        ),
+                    onPressed: () {
+                      showRemarkDialog(
+                        remarkController: dialogCtrl,
+                        context: context,
+                        onSave: (value) {
+                          context.read<BarListBloc>().add(
+                            SaveBarRemarkEvent(
+                              shopId: shopId ?? "",
+                              message: value,
+                            ),
+                          );
+                          // Navigator.pop(context);
+                        },
+                        isLoading: false,
                       );
-                      // Navigator.pop(context);
                     },
-                    isLoading: false,
-                  );
-                },
-                icon: Icon(
-                  Icons.edit_calendar_rounded,
-                  color: CommonColor.logoBGColor,
-                  size: 18,
-                ),
-              )
+                    icon: Icon(
+                      Icons.edit_calendar_rounded,
+                      color: CommonColor.logoBGColor,
+                      size: 18,
+                    ),
+                  )
                   : IconButton(
-                onPressed: () {
-                  showRemarkDialog(
-                    context: context,
-                    remarkController: dialogCtrl,
-                    onSave: (value) {
-                      debugPrint("response ${dialogCtrl.text}");
-                      debugPrint("id $shopId");
+                    onPressed: () {
+                      showRemarkDialog(
+                        context: context,
+                        remarkController: dialogCtrl,
+                        onSave: (value) {
+                          debugPrint("response ${dialogCtrl.text}");
+                          debugPrint("id $shopId");
 
-                      context.read<AssignedShopListBloc>().add(
-                        SaveRemarkEvent(
-                          shopId: shopId ?? "",
-                          message: value,
-                        ),
+                          context.read<BarListBloc>().add(
+                            SaveBarRemarkEvent(
+                              shopId: shopId ?? "",
+                              message: value,
+                            ),
+                          );
+                        },
+                        isLoading: false,
                       );
                     },
-                    isLoading: false,
-                  );
-                },
-                icon: Icon(
-                  Icons.add_circle_outline,
-                  color: CommonColor.logoBGColor,
-                  size: 18,
-                ),
-              ),
+                    icon: Icon(
+                      Icons.add_circle_outline,
+                      color: CommonColor.logoBGColor,
+                      size: 18,
+                    ),
+                  ),
             ],
           ),
         ),

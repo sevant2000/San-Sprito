@@ -1,22 +1,31 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
   final String _baseUrl = 'https://salesforce.sansprito.com/api';
   final String _contentType = 'application/x-www-form-urlencoded';
 
+  /// 🔹 Helper method to debugPrint API details for debugging
+  void _printApiDetails(String endpoint, [Map<String, dynamic>? body]) {
+    final fullUrl = '$_baseUrl/$endpoint';
+    debugPrint('\n📡 API CALL → $fullUrl');
+    if (body != null && body.isNotEmpty) {
+      debugPrint('📦 Request Body → $body');
+    }
+    debugPrint('--------------------------------------------');
+  }
+
   Future<http.Response> login(
-    String username,
-    String password,
-    String loginLocation,
-    String deviceName,
-  ) async {
-    final url = Uri.parse('$_baseUrl/login');
-
+      String username,
+      String password,
+      String loginLocation,
+      String deviceName,
+      ) async {
+    const endpoint = 'login';
+    final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
-
     final body = {
       'username': username,
       'password': password,
@@ -24,99 +33,95 @@ class ApiService {
       'device_name': deviceName,
     };
 
-    return await http.post(
-      url,
-      headers: headers,
-      body: body, // This will be encoded as x-www-form-urlencoded automatically
-    );
+    _printApiDetails(endpoint, body);
+    return await http.post(url, headers: headers, body: body);
   }
 
   Future<http.Response> dashBoardData(String userId) async {
-    final url = Uri.parse('$_baseUrl/dashboard');
-
+    const endpoint = 'dashboard';
+    final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
-
     final body = {'login_id': userId};
 
+    _printApiDetails(endpoint, body);
     return await http.post(url, headers: headers, body: body);
   }
 
   Future<http.Response> wareHouserStockData(String userId) async {
-    final url = Uri.parse('$_baseUrl/warehouse_stock');
-
+    const endpoint = 'warehouse_stock';
+    final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
-
     final body = {'login_id': userId};
 
+    _printApiDetails(endpoint, body);
     return await http.post(url, headers: headers, body: body);
   }
 
   Future<http.Response> priorityStockData(String userId) async {
-    final url = Uri.parse('$_baseUrl/priority_stock');
-
+    const endpoint = 'priority_stock';
+    final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
-
     final body = {'login_id': userId};
 
+    _printApiDetails(endpoint, body);
     return await http.post(url, headers: headers, body: body);
   }
 
   Future<http.Response> shopListData(String userId) async {
-    final url = Uri.parse('$_baseUrl/shop_stock');
-
+    const endpoint = 'shop_stock';
+    final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
-
     final body = {'login_id': userId};
 
+    _printApiDetails(endpoint, body);
     return await http.post(url, headers: headers, body: body);
   }
 
   Future<http.Response> sellerTargetData(String userId) async {
-    final url = Uri.parse('$_baseUrl/salesman_targets');
-
+    const endpoint = 'salesman_targets';
+    final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
-
     final body = {'login_id': userId};
 
+    _printApiDetails(endpoint, body);
     return await http.post(url, headers: headers, body: body);
   }
 
   Future<http.Response> assignedShopList(String userId) async {
-    final url = Uri.parse('$_baseUrl/shop_list');
-
+    const endpoint = 'shop_list';
+    final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
-
     final body = {'login_id': userId};
 
+    _printApiDetails(endpoint, body);
     return await http.post(url, headers: headers, body: body);
   }
 
   Future<http.Response> sendMessage({
     required String loginId,
-    // required List<String> adminIds,
     required String adminIds,
     required String messageContent,
   }) async {
-    final url = Uri.parse('$_baseUrl/send_message');
-
+    const endpoint = 'send_message';
+    final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
-
     final body = {
       'login_id': loginId,
       'admin_ids[]': adminIds,
       'message_content': messageContent,
     };
 
+    _printApiDetails(endpoint, body);
     return await http.post(url, headers: headers, body: body);
   }
 
   Future<http.Response> inboxMessageList(String userId) async {
-    final url = Uri.parse('$_baseUrl/inbox');
-
+    const endpoint = 'inbox';
+    final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
-
     final body = {'login_id': userId};
 
+    _printApiDetails(endpoint, body);
     return await http.post(url, headers: headers, body: body);
   }
 
@@ -124,14 +129,16 @@ class ApiService {
     required String shopId,
     required String message,
   }) async {
-    final url = Uri.parse('$_baseUrl/save_remark');
+    const endpoint = 'save_remark';
+    final url = Uri.parse('$_baseUrl/$endpoint');
+
+    _printApiDetails(endpoint, {'shop_id': shopId, 'message': message});
 
     var request = http.MultipartRequest('POST', url)
       ..fields['shop_id'] = shopId
       ..fields['message'] = message;
 
     var streamedResponse = await request.send();
-
     return await http.Response.fromStream(streamedResponse);
   }
 
@@ -141,7 +148,15 @@ class ApiService {
     required String loginLocation,
     required String deviceName,
   }) async {
-    final url = Uri.parse('$_baseUrl/create_shop_stock');
+    const endpoint = 'create_shop_stock';
+    final url = Uri.parse('$_baseUrl/$endpoint');
+
+    _printApiDetails(endpoint, {
+      'login_id': loginId,
+      'shop_id': shopId,
+      'login_location': loginLocation,
+      'device_name': deviceName,
+    });
 
     var request = http.MultipartRequest('POST', url)
       ..fields['login_id'] = loginId
@@ -150,35 +165,28 @@ class ApiService {
       ..fields['device_name'] = deviceName;
 
     var streamedResponse = await request.send();
-
     return await http.Response.fromStream(streamedResponse);
   }
 
   Future<http.Response> getProductBrand(String brandName) async {
-    final url = Uri.parse('$_baseUrl/getBrands?brand_name=$brandName');
+    final endpoint = 'getBrands?brand_name=$brandName';
+    final url = Uri.parse('$_baseUrl/$endpoint');
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json', // Optional for GET
-      },
-    );
+    _printApiDetails(endpoint);
 
-    return response;
+    return await http.get(url, headers: {'Content-Type': 'application/json'});
   }
 
   Future<http.Response> saveShopStock({
     required int shopId,
     required List<Map<String, dynamic>> stockList,
   }) async {
-    final url = Uri.parse(
-      '$_baseUrl/saveStock',
-    ); // Replace with actual endpoint
-
+    const endpoint = 'saveStock';
+    final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': 'application/json'};
-
     final body = jsonEncode({"shop_id": shopId, "stock": stockList});
 
+    _printApiDetails(endpoint, {"shop_id": shopId, "stock_count": stockList.length});
     return await http.post(url, headers: headers, body: body);
   }
 
@@ -191,76 +199,69 @@ class ApiService {
     String? totalStock,
     String? closingStock,
   }) async {
-    final url = Uri.parse('$_baseUrl/updateStock');
+    const endpoint = 'updateStock';
+    final url = Uri.parse('$_baseUrl/$endpoint');
 
-    final request = http.MultipartRequest('POST', url)
-      ..fields['stock_id'] = stockId;
+    final fields = {'stock_id': stockId};
+    if (brandName != null) fields['brand_name'] = brandName;
+    if (labelName != null) fields['label_name'] = labelName;
+    if (lastStock != null) fields['last_stock'] = lastStock;
+    if (stockIn != null) fields['stock_in'] = stockIn;
+    if (totalStock != null) fields['total_stock'] = totalStock;
+    if (closingStock != null) fields['closing_stock'] = closingStock;
 
-    // Add optional fields only if not null
-    if (brandName != null) request.fields['brand_name'] = brandName;
-    if (labelName != null) request.fields['label_name'] = labelName;
-    if (lastStock != null) request.fields['last_stock'] = lastStock;
-    if (stockIn != null) request.fields['stock_in'] = stockIn;
-    if (totalStock != null) request.fields['total_stock'] = totalStock;
-    if (closingStock != null) request.fields['closing_stock'] = closingStock;
+    _printApiDetails(endpoint, fields);
 
+    final request = http.MultipartRequest('POST', url)..fields.addAll(fields);
     final streamedResponse = await request.send();
     return await http.Response.fromStream(streamedResponse);
   }
 
   Future<http.Response> deleteStock(String stockId) async {
-    final url = Uri.parse('$_baseUrl/deleteStock?stock_id=$stockId');
+    final endpoint = 'deleteStock?stock_id=$stockId';
+    final url = Uri.parse('$_baseUrl/$endpoint');
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json', // Optional for GET
-      },
-    );
-
-    return response;
+    _printApiDetails(endpoint);
+    return await http.get(url, headers: {'Content-Type': 'application/json'});
   }
 
   Future<http.Response> logout(String loginId, String logoutLocation) async {
-    final url = Uri.parse('$_baseUrl/logout');
-
+    const endpoint = 'logout';
+    final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
-
     final body = {'login_id': loginId, 'logout_location': logoutLocation};
 
+    _printApiDetails(endpoint, body);
     return await http.post(url, headers: headers, body: body);
   }
 
   Future<http.Response> uploadShopPhotos(
-    String shopId,
-    List<File> imageFiles,
-  ) async {
-    final url = Uri.parse('$_baseUrl/shop_photos');
+      String shopId,
+      List<File> imageFiles,
+      ) async {
+    const endpoint = 'shop_photos';
+    final url = Uri.parse('$_baseUrl/$endpoint');
+
+    _printApiDetails(endpoint, {'shop_id': shopId, 'photos': imageFiles.length});
 
     final request = http.MultipartRequest('POST', url);
     request.fields['shop_id'] = shopId;
-
     for (var file in imageFiles) {
-      request.files.add(
-        await http.MultipartFile.fromPath('photos[]', file.path),
-      );
+      request.files.add(await http.MultipartFile.fromPath('photos[]', file.path));
     }
 
-    // Optional: add headers if needed (e.g., Authorization)
     request.headers.addAll({'Content-Type': 'multipart/form-data'});
-
     final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-
-    return response;
+    return await http.Response.fromStream(streamedResponse);
   }
 
   Future<http.Response> updateShopStatus({required String shopId}) async {
-    final url = Uri.parse('$_baseUrl/update_status');
+    const endpoint = 'update_status';
+    final url = Uri.parse('$_baseUrl/$endpoint');
 
-    var request = http.MultipartRequest('POST', url)
-      ..fields['shop_id'] = shopId;
+    _printApiDetails(endpoint, {'shop_id': shopId});
 
+    var request = http.MultipartRequest('POST', url)..fields['shop_id'] = shopId;
     var streamedResponse = await request.send();
     return await http.Response.fromStream(streamedResponse);
   }
@@ -272,7 +273,16 @@ class ApiService {
     required String noOfBottles,
     required String categoryName,
   }) async {
-    final url = Uri.parse('$_baseUrl/createPromotion');
+    const endpoint = 'createPromotion';
+    final url = Uri.parse('$_baseUrl/$endpoint');
+
+    _printApiDetails(endpoint, {
+      'shop_id': shopId,
+      'salesman_id': salesmanId,
+      'brand_name': brandName,
+      'no_of_bottles': noOfBottles,
+      'categoryName': categoryName,
+    });
 
     var request = http.MultipartRequest('POST', url)
       ..fields['shop_id'] = shopId
@@ -286,13 +296,12 @@ class ApiService {
   }
 
   Future<http.Response> getPromotionList() async {
-    final url = Uri.parse('$_baseUrl/promotion_list');
-
+    const endpoint = 'promotion_list';
+    final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
 
-    // No body needed — empty POST
-    final response = await http.post(url, headers: headers);
-    return response;
+    _printApiDetails(endpoint);
+    return await http.post(url, headers: headers);
   }
 
   Future<http.Response> updatePromotion({
@@ -300,30 +309,171 @@ class ApiService {
     required int noOfBottles,
     required int promotionId,
   }) async {
-    final url = Uri.parse('$_baseUrl/updatePromotion');
-
+    const endpoint = 'updatePromotion';
+    final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
-
     final body = {
       'brand_name': brandName,
       'no_of_bottles': noOfBottles.toString(),
       'promotion_id': promotionId.toString(),
     };
 
-    final response = await http.post(url, headers: headers, body: body);
-
-    return response;
+    _printApiDetails(endpoint, body);
+    return await http.post(url, headers: headers, body: body);
   }
 
   Future<http.Response> deletePromotion({required int promotionId}) async {
-    final url = Uri.parse('$_baseUrl/deletePromotion');
-
+    const endpoint = 'deletePromotion';
+    final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
-
     final body = {'promotion_id': promotionId.toString()};
 
-    final response = await http.post(url, headers: headers, body: body);
+    _printApiDetails(endpoint, body);
+    return await http.post(url, headers: headers, body: body);
+  }
 
-    return response;
+  // 🔹 Bar APIs below
+
+  Future<http.Response> assignedBarList(String userId) async {
+    const endpoint = 'bar_list';
+    final url = Uri.parse('$_baseUrl/$endpoint');
+    final headers = {'Content-Type': _contentType};
+    final body = {'login_id': userId};
+
+    _printApiDetails(endpoint, body);
+    return await http.post(url, headers: headers, body: body);
+  }
+
+  Future<http.Response> updateBarStatus({required String barId}) async {
+    const endpoint = 'update_Barstatus';
+    final url = Uri.parse('$_baseUrl/$endpoint');
+
+    _printApiDetails(endpoint, {'bar_id': barId});
+
+    var request = http.MultipartRequest('POST', url)..fields['bar_id'] = barId;
+    var streamedResponse = await request.send();
+    return await http.Response.fromStream(streamedResponse);
+  }
+
+  Future<http.Response> saveBarRemark({
+    required String barId,
+    required String message,
+  }) async {
+    const endpoint = 'save_BarRemark';
+    final url = Uri.parse('$_baseUrl/$endpoint');
+
+    _printApiDetails(endpoint, {'bar_id': barId, 'message': message});
+
+    var request = http.MultipartRequest('POST', url)
+      ..fields['bar_id'] = barId
+      ..fields['message'] = message;
+
+    var streamedResponse = await request.send();
+    return await http.Response.fromStream(streamedResponse);
+  }
+
+  Future<http.Response> barListData(String userId) async {
+    const endpoint = 'bar_stock';
+    final url = Uri.parse('$_baseUrl/$endpoint');
+    final headers = {'Content-Type': _contentType};
+    final body = {'login_id': userId};
+
+    _printApiDetails(endpoint, body);
+    return await http.post(url, headers: headers, body: body);
+  }
+
+  Future<http.Response> createBarStock({
+    required String loginId,
+    required String barId,
+    required String loginLocation,
+    required String deviceName,
+  }) async {
+    const endpoint = 'create_bar_stock';
+    final url = Uri.parse('$_baseUrl/$endpoint');
+
+    _printApiDetails(endpoint, {
+      'login_id': loginId,
+      'bar_id': barId,
+      'login_location': loginLocation,
+      'device_name': deviceName,
+    });
+
+    var request = http.MultipartRequest('POST', url)
+      ..fields['login_id'] = loginId
+      ..fields['bar_id'] = barId
+      ..fields['login_location'] = loginLocation
+      ..fields['device_name'] = deviceName;
+
+    var streamedResponse = await request.send();
+    return await http.Response.fromStream(streamedResponse);
+  }
+
+  Future<http.Response> uploadBarPhotos(
+      String barId,
+      List<File> imageFiles,
+      ) async {
+    const endpoint = 'bar_photos';
+    final url = Uri.parse('$_baseUrl/$endpoint');
+
+    _printApiDetails(endpoint, {'bar_id': barId, 'photos': imageFiles.length});
+
+    final request = http.MultipartRequest('POST', url);
+    request.fields['bar_id'] = barId;
+
+    for (var file in imageFiles) {
+      request.files.add(await http.MultipartFile.fromPath('photos[]', file.path));
+    }
+
+    request.headers.addAll({'Content-Type': 'multipart/form-data'});
+    final streamedResponse = await request.send();
+    return await http.Response.fromStream(streamedResponse);
+  }
+
+  Future<http.Response> saveBarStock({
+    required int barId,
+    required List<Map<String, dynamic>> stockList,
+  }) async {
+    const endpoint = 'saveBarStock';
+    final url = Uri.parse('$_baseUrl/$endpoint');
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode({"bar_id": barId, "stock": stockList});
+
+    _printApiDetails(endpoint, {"bar_id": barId, "stock_count": stockList.length});
+    return await http.post(url, headers: headers, body: body);
+  }
+
+  Future<http.Response> deleteBarStock(String barId) async {
+    final endpoint = 'deleteBarStock?bar_id=$barId';
+    final url = Uri.parse('$_baseUrl/$endpoint');
+
+    _printApiDetails(endpoint);
+    return await http.get(url, headers: {'Content-Type': 'application/json'});
+  }
+
+  Future<http.Response> updateBarStock({
+    required String stockId,
+    String? brandName,
+    String? labelName,
+    String? lastStock,
+    String? stockIn,
+    String? totalStock,
+    String? closingStock,
+  }) async {
+    const endpoint = 'updateBarStock';
+    final url = Uri.parse('$_baseUrl/$endpoint');
+
+    final fields = {'stock_id': stockId};
+    if (brandName != null) fields['brand_name'] = brandName;
+    if (labelName != null) fields['label_name'] = labelName;
+    if (lastStock != null) fields['last_stock'] = lastStock;
+    if (stockIn != null) fields['stock_in'] = stockIn;
+    if (totalStock != null) fields['total_stock'] = totalStock;
+    if (closingStock != null) fields['closing_stock'] = closingStock;
+
+    _printApiDetails(endpoint, fields);
+
+    final request = http.MultipartRequest('POST', url)..fields.addAll(fields);
+    final streamedResponse = await request.send();
+    return await http.Response.fromStream(streamedResponse);
   }
 }
