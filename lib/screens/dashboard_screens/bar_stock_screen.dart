@@ -88,7 +88,7 @@ class _BarStockScreenState extends State<BarStockScreen> {
                             header: const Text('Bar Stock Management'),
                             columns: const [
                               DataColumn(label: Text('#')),
-                              DataColumn(label: Text('Shop')),
+                              DataColumn(label: Text('Bar Name')),
                               DataColumn(label: Text('Brand')),
                               DataColumn(label: Text('Name')),
                               // DataColumn(label: Text('Stock In')),
