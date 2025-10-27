@@ -17,7 +17,8 @@ class CreatePromotionEvent extends CreatePromotionEventClass {
 }
 
 class PromotionListEvent extends CreatePromotionEventClass {
-  PromotionListEvent();
+  final String loginId;
+  PromotionListEvent({required this.loginId});
 }
 
 class UpdatePromotionEvent extends CreatePromotionEventClass {
@@ -35,7 +36,5 @@ class UpdatePromotionEvent extends CreatePromotionEventClass {
 class DeletePromotionEvent extends CreatePromotionEventClass {
   final int promotionId;
 
-  DeletePromotionEvent({
-    required this.promotionId,
-  });
+  DeletePromotionEvent({required this.promotionId});
 }

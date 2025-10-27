@@ -307,13 +307,27 @@ class ApiService {
     return await http.Response.fromStream(streamedResponse);
   }
 
-  Future<http.Response> getPromotionList() async {
+  // Future<http.Response> getPromotionList() async {
+  //   const endpoint = 'promotion_list';
+  //   final url = Uri.parse('$_baseUrl/$endpoint');
+  //   final headers = {'Content-Type': _contentType};
+  //
+  //   _printApiDetails(endpoint);
+  //   return await http.post(url, headers: headers);
+  // }
+
+  Future<http.Response> getPromotionList({required String loginId}) async {
     const endpoint = 'promotion_list';
     final url = Uri.parse('$_baseUrl/$endpoint');
     final headers = {'Content-Type': _contentType};
 
+    final body = {
+      'login_id': loginId,
+    };
+
     _printApiDetails(endpoint);
-    return await http.post(url, headers: headers);
+
+    return await http.post(url, headers: headers, body: body);
   }
 
   Future<http.Response> updatePromotion({
