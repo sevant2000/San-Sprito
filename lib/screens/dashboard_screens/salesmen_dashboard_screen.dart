@@ -97,12 +97,7 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
     if (userId != null && userId!.isNotEmpty) {
       // ignore: use_build_context_synchronously
       context.read<SalesmanDashBoardBloc>().add(
-        SalesmanDashBoardEvent(
-          loginId: userId ?? "",
-          shopId: widget.shopId ?? "",
-          deviceName: "One Plus",
-          loginLocation: address ?? currentAddress,
-        ),
+        SalesmanDashBoardEvent(loginId: userId ?? "", shopId: widget.shopId ?? "", deviceName: "One Plus", loginLocation: address ?? currentAddress),
       );
     } else {
       debugPrint("UserId is null or empty — skipping API call");
@@ -131,15 +126,9 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
     });
   }
 
-  List<String> get categoryName =>
-      categories?.map((e) => e.name ?? "").toList() ?? [];
+  List<String> get categoryName => categories?.map((e) => e.name ?? "").toList() ?? [];
 
-  Widget _buildDropdown<T>({
-    required String hint,
-    required T? selectedValue,
-    required List<T> items,
-    required void Function(T?) onChanged,
-  }) {
+  Widget _buildDropdown<T>({required String hint, required T? selectedValue, required List<T> items, required void Function(T?) onChanged}) {
     return SizedBox(
       width: double.infinity,
       child: DropdownButtonFormField<T>(
@@ -147,40 +136,27 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
         decoration: InputDecoration(
           labelText: hint,
           border: const OutlineInputBorder(),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 14,
-          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         ),
         isExpanded: true,
         icon: const Icon(Icons.keyboard_arrow_down),
         items:
             items.map<DropdownMenuItem<T>>((T value) {
-              return DropdownMenuItem<T>(
-                value: value,
-                child: Text(value.toString()),
-              );
+              return DropdownMenuItem<T>(value: value, child: Text(value.toString()));
             }).toList(),
         onChanged: onChanged,
       ),
     );
   }
 
-  Widget _buildTextField(
-    String hint,
-    TextEditingController controller,
-    FocusNode focusNode,
-  ) {
+  Widget _buildTextField(String hint, TextEditingController controller, FocusNode focusNode) {
     return SizedBox(
       width: double.infinity,
       child: TextField(
         keyboardType: TextInputType.numberWithOptions(),
         controller: controller,
         focusNode: focusNode,
-        decoration: InputDecoration(
-          labelText: hint,
-          border: const OutlineInputBorder(),
-        ),
+        decoration: InputDecoration(labelText: hint, border: const OutlineInputBorder()),
       ),
     );
   }
@@ -190,23 +166,16 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
       onTap: () => _openOptionsBottomSheet(index, controllers),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(4),
-        ),
+        decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(4)),
         child: Text(
           controllers["selectedOption"] ?? "Select an option",
-          style: const TextStyle(
-            color: Color.fromARGB(255, 32, 30, 30),
-            fontSize: 15,
-          ),
+          style: const TextStyle(color: Color.fromARGB(255, 32, 30, 30), fontSize: 15),
         ),
       ),
     );
   }
 
-  List<String> get allOptions =>
-      getProductBrandList?.map((e) => e.name ?? "").toList() ?? [];
+  List<String> get allOptions => getProductBrandList?.map((e) => "${e.name ?? ''} (${e.bottleSize ?? ''})").toList() ?? [];
 
   void _openOptionsBottomSheet(int index, Map<String, dynamic> controllers) {
     List<String> filteredOptions = List.from(allOptions);
@@ -242,9 +211,7 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
 
             return SafeArea(
               child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                 child: Column(
                   children: [
                     const SizedBox(height: 50),
@@ -252,11 +219,7 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: TextField(
                         controller: searchController,
-                        decoration: const InputDecoration(
-                          labelText: "Search options",
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(),
-                        ),
+                        decoration: const InputDecoration(labelText: "Search options", prefixIcon: Icon(Icons.search), border: OutlineInputBorder()),
                         onChanged: filterOptions,
                       ),
                     ),
@@ -271,8 +234,7 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                             onTap: () {
                               setState(() {
                                 controllers["selectedOption"] = option;
-                                controllers["name"]?.text =
-                                    option; // <-- Key line
+                                controllers["name"]?.text = option; // <-- Key line
                               });
                               Navigator.pop(context);
                             },
@@ -308,9 +270,7 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                 controllers["brand"]?.text = value ?? "";
               });
 
-              context.read<SalesmanDashBoardBloc>().add(
-                GetBrandProductListEvent(brandName: value ?? ""),
-              );
+              context.read<SalesmanDashBoardBloc>().add(GetBrandProductListEvent(brandName: value ?? ""));
             },
           ),
 
@@ -336,15 +296,10 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
           //   controllers["totalStock"] ?? "",
           //   FocusNode(),
           // ),
-          _buildTextField(
-            "Closing Stock (in bottles)",
-            controllers["closingStock"] ?? "",
-            FocusNode(),
-          ),
+          _buildTextField("Closing Stock (in bottles)", controllers["closingStock"] ?? "", FocusNode()),
           if (_editingIndex == null) ...[
             CommonButton(
-              backgroundColor:
-                  (productControllers.length == 1) ? Colors.grey : Colors.red,
+              backgroundColor: (productControllers.length == 1) ? Colors.grey : Colors.red,
               onPressed: () {
                 (productControllers.length == 1)
                     ? ToastService.showError("You can't delete sinlge row")
@@ -397,10 +352,7 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
   List<Map<String, dynamic>> get _paginatedData {
     final start = _currentPage * _rowsPerPage;
     final end = start + _rowsPerPage;
-    final data =
-        filteredData.isNotEmpty || _searchController.text.isNotEmpty
-            ? filteredData
-            : mockData;
+    final data = filteredData.isNotEmpty || _searchController.text.isNotEmpty ? filteredData : mockData;
 
     return data.sublist(start, end > data.length ? data.length : end);
   }
@@ -419,62 +371,57 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
   }
 
   void _saveProducts() {
-  // Check for empty fields before proceeding
-  // bool hasEmptyField = productControllers.any((controllers) {
-  //   return controllers.values.any((controller) {
-  //     return controller?.text.trim().isEmpty ?? true;
-  //   });
-  // });
+    // Check for empty fields before proceeding
+    // bool hasEmptyField = productControllers.any((controllers) {
+    //   return controllers.values.any((controller) {
+    //     return controller?.text.trim().isEmpty ?? true;
+    //   });
+    // });
 
-  // if (hasEmptyField) {
-  //   ToastService.showError("Please fill all the fields");
-  //   // Fluttertoast.showToast( 
-  //   //   msg: "Please fill all the fields",
-  //   //   toastLength: Toast.LENGTH_SHORT,
-  //   //   gravity: ToastGravity.BOTTOM,
-  //   // );
-  //   return; // Stop execution here
-  // }
+    // if (hasEmptyField) {
+    //   ToastService.showError("Please fill all the fields");
+    //   // Fluttertoast.showToast(
+    //   //   msg: "Please fill all the fields",
+    //   //   toastLength: Toast.LENGTH_SHORT,
+    //   //   gravity: ToastGravity.BOTTOM,
+    //   // );
+    //   return; // Stop execution here
+    // }
 
-  final updatedStock = productControllers.map((controllers) {
-    return {
-      "brand_name": controllers["brand"]?.text,
-      "label_name": controllers["name"]?.text,
-      // "last_stock": int.parse("${controllers["lastStock"]?.text}"),
-      // "stock_in": int.parse("${controllers["stockIn"]?.text}"),
-      // "total_stock": int.parse("${controllers["totalStock"]?.text}"),
-      "closing_stock": int.parse("${controllers["closingStock"]?.text}"),
-    };
-  }).toList();
+    final updatedStock =
+        productControllers.map((controllers) {
+          return {
+            "brand_name": controllers["brand"]?.text,
+            "label_name": controllers["name"]?.text,
+            // "last_stock": int.parse("${controllers["lastStock"]?.text}"),
+            // "stock_in": int.parse("${controllers["stockIn"]?.text}"),
+            // "total_stock": int.parse("${controllers["totalStock"]?.text}"),
+            "closing_stock": int.parse("${controllers["closingStock"]?.text}"),
+          };
+        }).toList();
 
-  debugPrint("--------REQUEST IS $updatedStock");
+    debugPrint("--------REQUEST IS $updatedStock");
 
-  if (_editingIndex != null) {
-    context.read<SalesmanDashBoardBloc>().add(
-      UpdateStockEvent(
-        brandName: updatedStock[0]["brand_name"] ?? "",
-        labelName: updatedStock[0]["label_name"] ?? "",
-        stockId: productId?.toString() ?? "",
-        // lastStock: updatedStock[0]["last_stock"]?.toString() ?? "",
-        // stockIn: updatedStock[0]["stock_in"]?.toString() ?? "",
-        closingStock: updatedStock[0]["closing_stock"]?.toString() ?? "",
-        // totalStock: updatedStock[0]["total_stock"]?.toString() ?? "",
-      ),
-    );
-    _editingIndex = null; // Reset editing index after update
-  } else {
-    // Save new data
-    context.read<SalesmanDashBoardBloc>().add(
-      SaveStockEvent(
-        shopId: int.parse(widget.shopId ?? ""),
-        stockList: updatedStock,
-      ),
-    );
+    if (_editingIndex != null) {
+      context.read<SalesmanDashBoardBloc>().add(
+        UpdateStockEvent(
+          brandName: updatedStock[0]["brand_name"] ?? "",
+          labelName: updatedStock[0]["label_name"] ?? "",
+          stockId: productId?.toString() ?? "",
+          // lastStock: updatedStock[0]["last_stock"]?.toString() ?? "",
+          // stockIn: updatedStock[0]["stock_in"]?.toString() ?? "",
+          closingStock: updatedStock[0]["closing_stock"]?.toString() ?? "",
+          // totalStock: updatedStock[0]["total_stock"]?.toString() ?? "",
+        ),
+      );
+      _editingIndex = null; // Reset editing index after update
+    } else {
+      // Save new data
+      context.read<SalesmanDashBoardBloc>().add(SaveStockEvent(shopId: int.parse(widget.shopId ?? ""), stockList: updatedStock));
+    }
+
+    emptyFields(); // Clear form after save/update
   }
-
-  emptyFields(); // Clear form after save/update
-}
-
 
   String _formatDate(String? isoDate) {
     if (isoDate == null || isoDate.isEmpty) return "-";
@@ -499,9 +446,7 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
   }
 
   Future<void> uploadImages(List<File> images) async {
-    context.read<SalesmanDashBoardBloc>().add(
-      UploadImageEvent(shopId: widget.shopId ?? "", imageList: images),
-    );
+    context.read<SalesmanDashBoardBloc>().add(UploadImageEvent(shopId: widget.shopId ?? "", imageList: images));
     setState(() {});
   }
 
@@ -518,9 +463,7 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
         } else if (state is SalesmanDashBoardSuccess) {
           createShopStockData = state.createShopStockResponseModel.data;
           categories = createShopStockData?.categories ?? [];
-          mockData = List.generate(createShopStockData?.stocks?.length ?? 0, (
-            index,
-          ) {
+          mockData = List.generate(createShopStockData?.stocks?.length ?? 0, (index) {
             var item = createShopStockData?.stocks?[index];
             return {
               "id": item?.id ?? "",
@@ -581,11 +524,7 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
           appBar: CommonAppBar(title: "Salesman Dashboard"),
           body:
               isLoad
-                  ? Center(
-                    child: CircularProgressIndicator(
-                      color: CommonColor.logoBGColor,
-                    ),
-                  )
+                  ? Center(child: CircularProgressIndicator(color: CommonColor.logoBGColor))
                   : SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -596,9 +535,7 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                           SizedBox(
                             width: double.infinity,
                             child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               color: Colors.white,
                               elevation: 2,
                               child: Padding(
@@ -606,48 +543,26 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      "Upload Images",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    Text("Upload Images", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                     Padding(
                                       padding: const EdgeInsets.all(16.0),
                                       child: ImagePickerWidget(
                                         onFileNamesChanged: (names) {
                                           imageNames = names;
-                                          debugPrint(
-                                            'Selected Names: $imageNames',
-                                          );
+                                          debugPrint('Selected Names: $imageNames');
                                         },
                                         onFilesChanged: (files) {
                                           imageFiles = files;
-                                          debugPrint(
-                                            'Selected Files: $imageFiles',
-                                          );
+                                          debugPrint('Selected Files: $imageFiles');
                                         },
-                                        uploadFunction:
-                                            (files) => uploadImages(files),
+                                        uploadFunction: (files) => uploadImages(files),
                                         btnLoading: isImageLoading,
                                       ),
                                     ),
 
-                                    Text(
-                                      "Create ${widget.shopName} Stock",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    Text("Create ${widget.shopName} Stock", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 16),
-                                    Column(
-                                      children: List.generate(
-                                        productControllers.length,
-                                        (index) => _buildProductRow(index),
-                                      ),
-                                    ),
+                                    Column(children: List.generate(productControllers.length, (index) => _buildProductRow(index))),
                                     const SizedBox(height: 16),
                                     Row(
                                       children: [
@@ -655,9 +570,7 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                                           CommonButton(
                                             onPressed: () {
                                               setState(() {
-                                                productControllers.add(
-                                                  _generateProductControllers(),
-                                                );
+                                                productControllers.add(_generateProductControllers());
                                               });
                                             },
                                             text: "Add Products",
@@ -666,19 +579,13 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                                         ],
                                         CommonButton(
                                           onPressed: () {
-                                            
-
                                             _saveProducts();
                                             emptyFields();
                                           },
-                                          text:
-                                              _editingIndex != null
-                                                  ? "Update Stock"
-                                                  : "Save Stock",
+                                          text: _editingIndex != null ? "Update Stock" : "Save Stock",
                                           icon: Icons.send,
                                           isLoading: btnLoading,
-                                          backgroundColor:
-                                              CommonColor.logoBGColor,
+                                          backgroundColor: CommonColor.logoBGColor,
                                         ),
                                       ],
                                     ),
@@ -694,26 +601,16 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                           Card(
                             color: Colors.white,
                             elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               children: [
                                 Container(
                                   padding: const EdgeInsets.all(16),
                                   alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    "${widget.shopName} STOCK",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                  child: Text("${widget.shopName} STOCK", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
                                   child: Row(
                                     children: [
                                       SizedBox(
@@ -723,15 +620,10 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                                           decoration: InputDecoration(
                                             labelText: "Search by Product Name",
                                             isDense: true,
-                                            suffixIcon: IconButton(
-                                              icon: const Icon(Icons.search),
-                                              onPressed: _applySearch,
-                                            ),
+                                            suffixIcon: IconButton(icon: const Icon(Icons.search), onPressed: _applySearch),
                                             border: const OutlineInputBorder(),
                                           ),
-                                          onChanged:
-                                              (_) =>
-                                                  _applySearch(), // Optional: live filtering
+                                          onChanged: (_) => _applySearch(), // Optional: live filtering
                                         ),
                                       ),
                                       Spacer(),
@@ -751,10 +643,7 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                                 SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
                                   child: DataTable(
-                                    headingRowColor:
-                                        WidgetStateColor.resolveWith(
-                                          (states) => Colors.grey.shade300,
-                                        ),
+                                    headingRowColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade300),
                                     columns: const [
                                       DataColumn(label: Text('#')),
                                       DataColumn(label: Text('Shop')),
@@ -769,11 +658,7 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                                       // DataColumn(
                                       //   label: Text('Total Stock (In bottles)'),
                                       // ),
-                                      DataColumn(
-                                        label: Text(
-                                          'Closing Stock (In bottles)',
-                                        ),
-                                      ),
+                                      DataColumn(label: Text('Closing Stock (In bottles)')),
                                       DataColumn(label: Text('Last Visit')),
                                       DataColumn(label: Text('Actions')),
                                     ],
@@ -785,20 +670,10 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                                                 index,
                                                 DataRow(
                                                   cells: [
-                                                    DataCell(
-                                                      Text(
-                                                        '${_currentPage * _rowsPerPage + index + 1}',
-                                                      ),
-                                                    ),
-                                                    DataCell(
-                                                      Text(row["shop"]!),
-                                                    ),
-                                                    DataCell(
-                                                      Text(row["brand"]!),
-                                                    ),
-                                                    DataCell(
-                                                      Text(row["name"]!),
-                                                    ),
+                                                    DataCell(Text('${_currentPage * _rowsPerPage + index + 1}')),
+                                                    DataCell(Text(row["shop"]!)),
+                                                    DataCell(Text(row["brand"]!)),
+                                                    DataCell(Text(row["name"]!)),
                                                     // DataCell(
                                                     //   Text(row["lastStock"]!),
                                                     // ),
@@ -808,96 +683,46 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                                                     // DataCell(
                                                     //   Text(row["totalStock"]!),
                                                     // ),
-                                                    DataCell(
-                                                      Text(
-                                                        row["closingStock"]!,
-                                                      ),
-                                                    ),
-                                                    DataCell(
-                                                      Text(row["lastVisit"]!),
-                                                    ),
+                                                    DataCell(Text(row["closingStock"]!)),
+                                                    DataCell(Text(row["lastVisit"]!)),
 
                                                     /// ✅ Conditionally show Edit/Delete only if search is empty
                                                     DataCell(
-                                                      _searchController.text
-                                                              .trim()
-                                                              .isEmpty
+                                                      _searchController.text.trim().isEmpty
                                                           ? Row(
                                                             children: [
                                                               IconButton(
                                                                 onPressed: () {
-                                                                  _searchController
-                                                                      .clear();
-                                                                  final product =
-                                                                      createShopStockData
-                                                                          ?.stocks?[index];
-                                                                  String id =
-                                                                      product
-                                                                          ?.id ??
-                                                                      "";
-                                                                  productId =
-                                                                      id;
-                                                                  debugPrint(
-                                                                    "ProductIdIs---$productId",
-                                                                  );
-                                                                  _onEditRow(
-                                                                    index,
-                                                                  );
+                                                                  _searchController.clear();
+                                                                  final product = createShopStockData?.stocks?[index];
+                                                                  String id = product?.id ?? "";
+                                                                  productId = id;
+                                                                  debugPrint("ProductIdIs---$productId");
+                                                                  _onEditRow(index);
                                                                 },
-                                                                icon: Icon(
-                                                                  Icons.edit,
-                                                                  color:
-                                                                      Colors
-                                                                          .blue,
-                                                                ),
+                                                                icon: Icon(Icons.edit, color: Colors.blue),
                                                               ),
-                                                              const SizedBox(
-                                                                width: 4,
-                                                              ),
+                                                              const SizedBox(width: 4),
                                                               IconButton(
                                                                 onPressed: () {
-                                                                  final product =
-                                                                      createShopStockData
-                                                                          ?.stocks?[index];
-                                                                  String id =
-                                                                      product
-                                                                          ?.id ??
-                                                                      "";
-                                                                  productId =
-                                                                      id;
+                                                                  final product = createShopStockData?.stocks?[index];
+                                                                  String id = product?.id ?? "";
+                                                                  productId = id;
 
                                                                   showConfirmationDialog(
-                                                                    context:
-                                                                        context,
-                                                                    cancelText:
-                                                                        "No",
-                                                                    confirmText:
-                                                                        "Yes",
-                                                                    title:
-                                                                        "Delete Stock confirmation",
-                                                                    content:
-                                                                        "Are you sure want to delete this stock product",
+                                                                    context: context,
+                                                                    cancelText: "No",
+                                                                    confirmText: "Yes",
+                                                                    title: "Delete Stock confirmation",
+                                                                    content: "Are you sure want to delete this stock product",
                                                                     onDeletePressed: () {
-                                                                      context
-                                                                          .read<
-                                                                            SalesmanDashBoardBloc
-                                                                          >()
-                                                                          .add(
-                                                                            DeleteStockEvent(
-                                                                              stockId:
-                                                                                  productId ??
-                                                                                  "",
-                                                                            ),
-                                                                          );
+                                                                      context.read<SalesmanDashBoardBloc>().add(
+                                                                        DeleteStockEvent(stockId: productId ?? ""),
+                                                                      );
                                                                     },
                                                                   );
                                                                 },
-                                                                icon: Icon(
-                                                                  Icons.delete,
-                                                                  color:
-                                                                      Colors
-                                                                          .red,
-                                                                ),
+                                                                icon: Icon(Icons.delete, color: Colors.red),
                                                               ),
                                                             ],
                                                           )
@@ -922,21 +747,12 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
                                     ),
                                     const SizedBox(width: 10),
                                     IconButton(
-                                      onPressed:
-                                          _currentPage > 0
-                                              ? () =>
-                                                  setState(() => _currentPage--)
-                                              : null,
+                                      onPressed: _currentPage > 0 ? () => setState(() => _currentPage--) : null,
                                       icon: const Icon(Icons.arrow_back_ios),
                                     ),
                                     Text("${_currentPage + 1}"),
                                     IconButton(
-                                      onPressed:
-                                          (_currentPage + 1) * _rowsPerPage <
-                                                  mockData.length
-                                              ? () =>
-                                                  setState(() => _currentPage++)
-                                              : null,
+                                      onPressed: (_currentPage + 1) * _rowsPerPage < mockData.length ? () => setState(() => _currentPage++) : null,
                                       icon: const Icon(Icons.arrow_forward_ios),
                                     ),
                                     const SizedBox(width: 16),
