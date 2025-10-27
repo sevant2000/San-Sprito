@@ -24,8 +24,7 @@ class BarSalesmanDashboardScreen extends StatefulWidget {
   const BarSalesmanDashboardScreen({super.key, this.shopId, this.shopName});
 
   @override
-  State<BarSalesmanDashboardScreen> createState() =>
-      _SalesmanStockDashboardState();
+  State<BarSalesmanDashboardScreen> createState() => _SalesmanStockDashboardState();
 }
 
 class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
@@ -132,15 +131,9 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
     });
   }
 
-  List<String> get categoryName =>
-      categories?.map((e) => e.name ?? "").toList() ?? [];
+  List<String> get categoryName => categories?.map((e) => e.name ?? "").toList() ?? [];
 
-  Widget _buildDropdown<T>({
-    required String hint,
-    required T? selectedValue,
-    required List<T> items,
-    required void Function(T?) onChanged,
-  }) {
+  Widget _buildDropdown<T>({required String hint, required T? selectedValue, required List<T> items, required void Function(T?) onChanged}) {
     return SizedBox(
       width: double.infinity,
       child: DropdownButtonFormField<T>(
@@ -148,40 +141,27 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
         decoration: InputDecoration(
           labelText: hint,
           border: const OutlineInputBorder(),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 14,
-          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         ),
         isExpanded: true,
         icon: const Icon(Icons.keyboard_arrow_down),
         items:
             items.map<DropdownMenuItem<T>>((T value) {
-              return DropdownMenuItem<T>(
-                value: value,
-                child: Text(value.toString()),
-              );
+              return DropdownMenuItem<T>(value: value, child: Text(value.toString()));
             }).toList(),
         onChanged: onChanged,
       ),
     );
   }
 
-  Widget _buildTextField(
-    String hint,
-    TextEditingController controller,
-    FocusNode focusNode,
-  ) {
+  Widget _buildTextField(String hint, TextEditingController controller, FocusNode focusNode) {
     return SizedBox(
       width: double.infinity,
       child: TextField(
         keyboardType: TextInputType.numberWithOptions(),
         controller: controller,
         focusNode: focusNode,
-        decoration: InputDecoration(
-          labelText: hint,
-          border: const OutlineInputBorder(),
-        ),
+        decoration: InputDecoration(labelText: hint, border: const OutlineInputBorder()),
       ),
     );
   }
@@ -191,23 +171,16 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
       onTap: () => _openOptionsBottomSheet(index, controllers),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(4),
-        ),
+        decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(4)),
         child: Text(
           controllers["selectedOption"] ?? "Select an option",
-          style: const TextStyle(
-            color: Color.fromARGB(255, 32, 30, 30),
-            fontSize: 15,
-          ),
+          style: const TextStyle(color: Color.fromARGB(255, 32, 30, 30), fontSize: 15),
         ),
       ),
     );
   }
 
-  List<String> get allOptions =>
-      getProductBrandList?.map((e) => e.name ?? "").toList() ?? [];
+  List<String> get allOptions => getProductBrandList?.map((e) => "${e.name ?? ''} (${e.bottleSize ?? ''})").toList() ?? [];
 
   void _openOptionsBottomSheet(int index, Map<String, dynamic> controllers) {
     List<String> filteredOptions = List.from(allOptions);
@@ -243,9 +216,7 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
 
             return SafeArea(
               child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                 child: Column(
                   children: [
                     const SizedBox(height: 50),
@@ -253,11 +224,7 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: TextField(
                         controller: searchController,
-                        decoration: const InputDecoration(
-                          labelText: "Search options",
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(),
-                        ),
+                        decoration: const InputDecoration(labelText: "Search options", prefixIcon: Icon(Icons.search), border: OutlineInputBorder()),
                         onChanged: filterOptions,
                       ),
                     ),
@@ -272,8 +239,7 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
                             onTap: () {
                               setState(() {
                                 controllers["selectedOption"] = option;
-                                controllers["name"]?.text =
-                                    option; // <-- Key line
+                                controllers["name"]?.text = option; // <-- Key line
                               });
                               Navigator.pop(context);
                             },
@@ -309,9 +275,7 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
                 controllers["brand"]?.text = value ?? "";
               });
 
-              context.read<BarSalesmanDashboardBloc>().add(
-                GetBarBrandProductListEvent(brandName: value ?? ""),
-              );
+              context.read<BarSalesmanDashboardBloc>().add(GetBarBrandProductListEvent(brandName: value ?? ""));
             },
           ),
 
@@ -337,15 +301,10 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
           //   controllers["totalStock"] ?? "",
           //   FocusNode(),
           // ),
-          _buildTextField(
-            "Closing Stock (in bottles)",
-            controllers["closingStock"] ?? "",
-            FocusNode(),
-          ),
+          _buildTextField("Closing Stock (in bottles)", controllers["closingStock"] ?? "", FocusNode()),
           if (_editingIndex == null) ...[
             CommonButton(
-              backgroundColor:
-                  (productControllers.length == 1) ? Colors.grey : Colors.red,
+              backgroundColor: (productControllers.length == 1) ? Colors.grey : Colors.red,
               onPressed: () {
                 (productControllers.length == 1)
                     ? ToastService.showError("You can't delete sinlge row")
@@ -398,10 +357,7 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
   List<Map<String, dynamic>> get _paginatedData {
     final start = _currentPage * _rowsPerPage;
     final end = start + _rowsPerPage;
-    final data =
-        filteredData.isNotEmpty || _searchController.text.isNotEmpty
-            ? filteredData
-            : mockData;
+    final data = filteredData.isNotEmpty || _searchController.text.isNotEmpty ? filteredData : mockData;
 
     return data.sublist(start, end > data.length ? data.length : end);
   }
@@ -466,12 +422,7 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
       _editingIndex = null; // Reset editing index after update
     } else {
       // Save new data
-      context.read<BarSalesmanDashboardBloc>().add(
-        SaveBarStockEvent(
-          barId: int.parse(widget.shopId ?? ""),
-          stockList: updatedStock,
-        ),
-      );
+      context.read<BarSalesmanDashboardBloc>().add(SaveBarStockEvent(barId: int.parse(widget.shopId ?? ""), stockList: updatedStock));
     }
 
     emptyFields(); // Clear form after save/update
@@ -500,9 +451,7 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
   }
 
   Future<void> uploadImages(List<File> images) async {
-    context.read<BarSalesmanDashboardBloc>().add(
-      UploadBarImageEvent(barId: widget.shopId ?? "", imageList: images),
-    );
+    context.read<BarSalesmanDashboardBloc>().add(UploadBarImageEvent(barId: widget.shopId ?? "", imageList: images));
     setState(() {});
   }
 
@@ -580,11 +529,7 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
           appBar: const CommonAppBar(title: "Salesman Dashboard"),
           body:
               isLoad
-                  ? Center(
-                    child: CircularProgressIndicator(
-                      color: CommonColor.logoBGColor,
-                    ),
-                  )
+                  ? Center(child: CircularProgressIndicator(color: CommonColor.logoBGColor))
                   : SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -595,9 +540,7 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               color: Colors.white,
                               elevation: 2,
                               child: Padding(
@@ -605,48 +548,26 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      "Upload Images",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    Text("Upload Images", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                     Padding(
                                       padding: const EdgeInsets.all(16.0),
                                       child: ImagePickerWidget(
                                         onFileNamesChanged: (names) {
                                           imageNames = names;
-                                          debugPrint(
-                                            'Selected Names: $imageNames',
-                                          );
+                                          debugPrint('Selected Names: $imageNames');
                                         },
                                         onFilesChanged: (files) {
                                           imageFiles = files;
-                                          debugPrint(
-                                            'Selected Files: $imageFiles',
-                                          );
+                                          debugPrint('Selected Files: $imageFiles');
                                         },
-                                        uploadFunction:
-                                            (files) => uploadImages(files),
+                                        uploadFunction: (files) => uploadImages(files),
                                         btnLoading: isImageLoading,
                                       ),
                                     ),
 
-                                    Text(
-                                      "Create ${widget.shopName} Stock",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    Text("Create ${widget.shopName} Stock", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 16),
-                                    Column(
-                                      children: List.generate(
-                                        productControllers.length,
-                                        (index) => _buildProductRow(index),
-                                      ),
-                                    ),
+                                    Column(children: List.generate(productControllers.length, (index) => _buildProductRow(index))),
                                     const SizedBox(height: 16),
                                     Row(
                                       children: [
@@ -654,9 +575,7 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
                                           CommonButton(
                                             onPressed: () {
                                               setState(() {
-                                                productControllers.add(
-                                                  _generateProductControllers(),
-                                                );
+                                                productControllers.add(_generateProductControllers());
                                               });
                                             },
                                             text: "Add Products",
@@ -668,14 +587,10 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
                                             _saveProducts();
                                             emptyFields();
                                           },
-                                          text:
-                                              _editingIndex != null
-                                                  ? "Update Stock"
-                                                  : "Save Stock",
+                                          text: _editingIndex != null ? "Update Stock" : "Save Stock",
                                           icon: Icons.send,
                                           isLoading: false,
-                                          backgroundColor:
-                                              CommonColor.logoBGColor,
+                                          backgroundColor: CommonColor.logoBGColor,
                                         ),
                                       ],
                                     ),
@@ -691,26 +606,16 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
                           Card(
                             color: Colors.white,
                             elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               children: [
                                 Container(
                                   padding: const EdgeInsets.all(16),
                                   alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    "${widget.shopName} STOCK",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                  child: Text("${widget.shopName} STOCK", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
                                   child: Row(
                                     children: [
                                       SizedBox(
@@ -720,15 +625,10 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
                                           decoration: InputDecoration(
                                             labelText: "Search by Product Name",
                                             isDense: true,
-                                            suffixIcon: IconButton(
-                                              icon: const Icon(Icons.search),
-                                              onPressed: _applySearch,
-                                            ),
+                                            suffixIcon: IconButton(icon: const Icon(Icons.search), onPressed: _applySearch),
                                             border: const OutlineInputBorder(),
                                           ),
-                                          onChanged:
-                                              (_) =>
-                                                  _applySearch(), // Optional: live filtering
+                                          onChanged: (_) => _applySearch(), // Optional: live filtering
                                         ),
                                       ),
                                       Spacer(),
@@ -748,10 +648,7 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
                                 SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
                                   child: DataTable(
-                                    headingRowColor:
-                                        WidgetStateColor.resolveWith(
-                                          (states) => Colors.grey.shade300,
-                                        ),
+                                    headingRowColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade300),
                                     columns: const [
                                       DataColumn(label: Text('#')),
                                       DataColumn(label: Text('')),
@@ -766,11 +663,7 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
                                       // DataColumn(
                                       //   label: Text('Total Stock (In bottles)'),
                                       // ),
-                                      DataColumn(
-                                        label: Text(
-                                          'Closing Stock (In bottles)',
-                                        ),
-                                      ),
+                                      DataColumn(label: Text('Closing Stock (In bottles)')),
                                       DataColumn(label: Text('Last Visit')),
                                       DataColumn(label: Text('Actions')),
                                     ],
@@ -782,20 +675,10 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
                                                 index,
                                                 DataRow(
                                                   cells: [
-                                                    DataCell(
-                                                      Text(
-                                                        '${_currentPage * _rowsPerPage + index + 1}',
-                                                      ),
-                                                    ),
-                                                    DataCell(
-                                                      Text(row["shop"]!),
-                                                    ),
-                                                    DataCell(
-                                                      Text(row["brand"]!),
-                                                    ),
-                                                    DataCell(
-                                                      Text(row["name"]!),
-                                                    ),
+                                                    DataCell(Text('${_currentPage * _rowsPerPage + index + 1}')),
+                                                    DataCell(Text(row["shop"]!)),
+                                                    DataCell(Text(row["brand"]!)),
+                                                    DataCell(Text(row["name"]!)),
                                                     // DataCell(
                                                     //   Text(row["lastStock"]!),
                                                     // ),
@@ -805,96 +688,46 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
                                                     // DataCell(
                                                     //   Text(row["totalStock"]!),
                                                     // ),
-                                                    DataCell(
-                                                      Text(
-                                                        row["closingStock"]!,
-                                                      ),
-                                                    ),
-                                                    DataCell(
-                                                      Text(row["lastVisit"]!),
-                                                    ),
+                                                    DataCell(Text(row["closingStock"]!)),
+                                                    DataCell(Text(row["lastVisit"]!)),
 
                                                     /// ✅ Conditionally show Edit/Delete only if search is empty
                                                     DataCell(
-                                                      _searchController.text
-                                                              .trim()
-                                                              .isEmpty
+                                                      _searchController.text.trim().isEmpty
                                                           ? Row(
                                                             children: [
                                                               IconButton(
                                                                 onPressed: () {
-                                                                  _searchController
-                                                                      .clear();
-                                                                  final product =
-                                                                      barStockData
-                                                                          ?.stocks?[index];
-                                                                  String id =
-                                                                      product
-                                                                          ?.id ??
-                                                                      "";
-                                                                  productId =
-                                                                      id;
-                                                                  debugPrint(
-                                                                    "ProductIdIs---$productId",
-                                                                  );
-                                                                  _onEditRow(
-                                                                    index,
-                                                                  );
+                                                                  _searchController.clear();
+                                                                  final product = barStockData?.stocks?[index];
+                                                                  String id = product?.id ?? "";
+                                                                  productId = id;
+                                                                  debugPrint("ProductIdIs---$productId");
+                                                                  _onEditRow(index);
                                                                 },
-                                                                icon: Icon(
-                                                                  Icons.edit,
-                                                                  color:
-                                                                      Colors
-                                                                          .blue,
-                                                                ),
+                                                                icon: Icon(Icons.edit, color: Colors.blue),
                                                               ),
-                                                              const SizedBox(
-                                                                width: 4,
-                                                              ),
+                                                              const SizedBox(width: 4),
                                                               IconButton(
                                                                 onPressed: () {
-                                                                  final product =
-                                                                      barStockData
-                                                                          ?.stocks?[index];
-                                                                  String id =
-                                                                      product
-                                                                          ?.id ??
-                                                                      "";
-                                                                  productId =
-                                                                      id;
+                                                                  final product = barStockData?.stocks?[index];
+                                                                  String id = product?.id ?? "";
+                                                                  productId = id;
 
                                                                   showConfirmationDialog(
-                                                                    context:
-                                                                        context,
-                                                                    cancelText:
-                                                                        "No",
-                                                                    confirmText:
-                                                                        "Yes",
-                                                                    title:
-                                                                        "Delete Stock confirmation",
-                                                                    content:
-                                                                        "Are you sure want to delete this stock product",
+                                                                    context: context,
+                                                                    cancelText: "No",
+                                                                    confirmText: "Yes",
+                                                                    title: "Delete Stock confirmation",
+                                                                    content: "Are you sure want to delete this stock product",
                                                                     onDeletePressed: () {
-                                                                      context
-                                                                          .read<
-                                                                            BarSalesmanDashboardBloc
-                                                                          >()
-                                                                          .add(
-                                                                            DeleteBarStockEvent(
-                                                                              stockId:
-                                                                                  productId ??
-                                                                                  "",
-                                                                            ),
-                                                                          );
+                                                                      context.read<BarSalesmanDashboardBloc>().add(
+                                                                        DeleteBarStockEvent(stockId: productId ?? ""),
+                                                                      );
                                                                     },
                                                                   );
                                                                 },
-                                                                icon: Icon(
-                                                                  Icons.delete,
-                                                                  color:
-                                                                      Colors
-                                                                          .red,
-                                                                ),
+                                                                icon: Icon(Icons.delete, color: Colors.red),
                                                               ),
                                                             ],
                                                           )
@@ -919,21 +752,12 @@ class _SalesmanStockDashboardState extends State<BarSalesmanDashboardScreen> {
                                     ),
                                     const SizedBox(width: 10),
                                     IconButton(
-                                      onPressed:
-                                          _currentPage > 0
-                                              ? () =>
-                                                  setState(() => _currentPage--)
-                                              : null,
+                                      onPressed: _currentPage > 0 ? () => setState(() => _currentPage--) : null,
                                       icon: const Icon(Icons.arrow_back_ios),
                                     ),
                                     Text("${_currentPage + 1}"),
                                     IconButton(
-                                      onPressed:
-                                          (_currentPage + 1) * _rowsPerPage <
-                                                  mockData.length
-                                              ? () =>
-                                                  setState(() => _currentPage++)
-                                              : null,
+                                      onPressed: (_currentPage + 1) * _rowsPerPage < mockData.length ? () => setState(() => _currentPage++) : null,
                                       icon: const Icon(Icons.arrow_forward_ios),
                                     ),
                                     const SizedBox(width: 16),

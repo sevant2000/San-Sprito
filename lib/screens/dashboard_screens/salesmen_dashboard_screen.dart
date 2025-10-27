@@ -206,7 +206,9 @@ class _SalesmanStockDashboardState extends State<SalesmanStockDashboard> {
   }
 
   List<String> get allOptions =>
-      getProductBrandList?.map((e) => e.name ?? "").toList() ?? [];
+      getProductBrandList
+          ?.map((e) => "${e.name ?? ''} (${e.bottleSize ?? ''})")
+          .toList() ?? [];
 
   void _openOptionsBottomSheet(int index, Map<String, dynamic> controllers) {
     List<String> filteredOptions = List.from(allOptions);
