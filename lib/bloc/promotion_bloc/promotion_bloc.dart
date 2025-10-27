@@ -54,7 +54,9 @@ class CreatePromotionBloc
       emit(CreatePromotionLoading());
 
       try {
-        final http.Response response = await apiService.getPromotionList();
+        final http.Response response = await apiService.getPromotionList(
+          loginId: event.loginId,
+        );
 
         debugPrint("✅ Status code: ${response.statusCode}");
         debugPrint("📨 Raw Response body: ${response.body}");

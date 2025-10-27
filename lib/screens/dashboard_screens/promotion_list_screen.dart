@@ -82,7 +82,9 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
     debugPrint("gettingUserId: $userId");
 
     if (userId != null && userId!.isNotEmpty && mounted) {
-      context.read<CreatePromotionBloc>().add(PromotionListEvent());
+      context.read<CreatePromotionBloc>().add(
+        PromotionListEvent(loginId: userId ?? ""),
+      );
     } else {
       debugPrint("UserId is null or empty — skipping API call");
     }
@@ -116,7 +118,9 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
                 state.deletePromotionResponse.data?.message ??
                 "Product Deleted Successfully",
           );
-          context.read<CreatePromotionBloc>().add(PromotionListEvent());
+          context.read<CreatePromotionBloc>().add(
+            PromotionListEvent(loginId: userId ?? ""),
+          );
         } else if (state is CreatePromotionFailure) {
           isLoad = false;
           ToastService.showError("Something went wrong");
@@ -198,6 +202,7 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
                               _paginatedData,
                               _currentPage * _rowsPerPage,
                               context,
+                              userId ?? "",
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -232,8 +237,9 @@ class ShopDataSource extends DataTableSource {
   final List<Map<String, String>> data;
   final int offset;
   final BuildContext context;
+  final String userId;
 
-  ShopDataSource(this.data, this.offset, this.context);
+  ShopDataSource(this.data, this.offset, this.context, this.userId);
 
   final TextEditingController dialogCtrl = TextEditingController();
 
@@ -258,7 +264,9 @@ class ShopDataSource extends DataTableSource {
                 ),
               ).then((val) {
                 if (context.mounted) {
-                  context.read<CreatePromotionBloc>().add(PromotionListEvent());
+                  context.read<CreatePromotionBloc>().add(
+                    PromotionListEvent(loginId: userId ?? ""),
+                  );
                 }
               });
               ;
@@ -299,7 +307,7 @@ class ShopDataSource extends DataTableSource {
                       ).then((val) {
                         if (context.mounted) {
                           context.read<CreatePromotionBloc>().add(
-                            PromotionListEvent(),
+                            PromotionListEvent(loginId: userId ?? ""),
                           );
                         }
                       });
@@ -318,9 +326,11 @@ class ShopDataSource extends DataTableSource {
                     icon: Icon(Icons.delete, color: Colors.white, size: 15),
                     onPressed: () async {
                       final bool confirmDelete =
-                          await showDeleteConfirmationDialog(context, shop["id"] ?? "");
+                          await showDeleteConfirmationDialog(
+                            context,
+                            shop["id"] ?? "",
+                          );
                       if (confirmDelete && context.mounted) {
-
                       } else {}
                     },
                   ),
@@ -333,7 +343,10 @@ class ShopDataSource extends DataTableSource {
     );
   }
 
-  Future<bool> showDeleteConfirmationDialog(BuildContext context, String id) async {
+  Future<bool> showDeleteConfirmationDialog(
+    BuildContext context,
+    String id,
+  ) async {
     return await showDialog<bool>(
           context: context,
           barrierDismissible: false, // prevent closing by tapping outside
@@ -353,15 +366,16 @@ class ShopDataSource extends DataTableSource {
                   onPressed: () => Navigator.of(context).pop(false),
                   child: const Text('Cancel'),
                 ),
-                CommonButton(onPressed: () {
-                  context.read<CreatePromotionBloc>().add(
-                    DeletePromotionEvent(
-                      promotionId: int.parse(id),
-                    ),
-                  );
-                  debugPrint("dsjhfgjh");
-                  Navigator.pop(context);
-                }, text: "Delete"),
+                CommonButton(
+                  onPressed: () {
+                    context.read<CreatePromotionBloc>().add(
+                      DeletePromotionEvent(promotionId: int.parse(id)),
+                    );
+                    debugPrint("dsjhfgjh");
+                    Navigator.pop(context);
+                  },
+                  text: "Delete",
+                ),
               ],
             );
           },

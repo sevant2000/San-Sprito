@@ -107,7 +107,6 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
             if (state is AssignedShopListSuccess) {
               assignedShopListData =
                   state.assignedShopListResponseList.data ?? [];
-
               shopNames =
                   state.assignedShopListResponseList.data
                       ?.map((e) => e.name ?? "")
@@ -115,6 +114,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                   [];
 
               debugPrint("shopLength---${shopNames.length}");
+
               // Set filteredData to full list initially
               isLoad = false;
               if (userId != null && userId!.isNotEmpty) {
@@ -141,7 +141,8 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
               createShopStockData = state.createShopStockResponseModel.data;
 
               shopList = createShopStockData?.shops ?? [];
-
+              // shopNames = shopList?.map((e) => e.name ?? "").toList() ?? [];
+              debugPrint("shoplist---${shopList?.last.name}");
               categories = createShopStockData?.categories ?? [];
               categoryNames =
                   categories?.map((e) => e.name ?? "").toList() ?? [];
@@ -187,7 +188,9 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                 backgroundColor: Colors.white,
                 appBar: const CommonAppBar(title: "Add Promotion"),
                 body:
-                    isLoad || (categoryNames.isEmpty == true)
+                    isLoad ||
+                            (categoryNames.isEmpty == true) ||
+                            (shopList?.isEmpty == true)
                         // true
                         ? Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -227,19 +230,24 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                                           : true,
                                   hint: 'Select Shop',
                                   selectedValue: selectedShopName,
-                                  items: shopNames,
+                                  items:
+                                      assignedShopListData
+                                          ?.map((e) => e.name ?? "")
+                                          .toList() ??
+                                      [],
+                                  // items: shopNames,
                                   onChanged: (value) {
                                     setState(() {
                                       selectedShopName = value ?? "";
-                                      final selectedShop = shopList?.firstWhere(
-                                        (shop) => shop.name == value,
-                                        orElse:
-                                            () => Shops(
-                                              id: '',
-                                              name: '',
-                                            ), // fallback
-                                      );
-                                      selectedShopId = selectedShop?.id ?? "";
+
+                                      final selectedShop = assignedShopListData
+                                          ?.where((shop) => shop.name == value)
+                                          .map((shop) => shop.id);
+                                      selectedShopId = (selectedShop ?? '')
+                                          .toString()
+                                          .replaceAll('(', '')
+                                          .replaceAll(')', '');
+
                                       debugPrint(
                                         "Selected shop id: $selectedShopId",
                                       );
@@ -309,7 +317,8 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                                             selectedBrandOptionCtrl
                                                 .text
                                                 .isEmpty ||
-                                            noOfBottlesCtrl.text.isEmpty) {
+                                            noOfBottlesCtrl.text.isEmpty ||
+                                            selectedShopId?.isEmpty == true) {
                                       ToastService.showError(
                                         "Please fill all mandatory fields",
                                       );

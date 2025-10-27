@@ -17,7 +17,8 @@ class CreatePromotionEvent extends CreatePromotionEventClass {
 }
 
 class PromotionListEvent extends CreatePromotionEventClass {
-  PromotionListEvent();
+  final String loginId;
+  PromotionListEvent({required this.loginId});
 }
 
 class UpdatePromotionEvent extends CreatePromotionEventClass {
