@@ -24,12 +24,7 @@ class AddPromotionScreen extends StatefulWidget {
   final String? promoId;
   final Map<String, String>? shop;
   final bool? comeFromPromoList;
-  const AddPromotionScreen({
-    super.key,
-    this.promoId,
-    this.shop,
-    this.comeFromPromoList,
-  });
+  const AddPromotionScreen({super.key, this.promoId, this.shop, this.comeFromPromoList});
 
   @override
   State<AddPromotionScreen> createState() => _AddPromotionScreenState();
@@ -57,6 +52,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
 
   // Original full data
   TextEditingController selectedBrandOptionCtrl = TextEditingController();
+  TextEditingController selectShopNameCtrl = TextEditingController();
   TextEditingController noOfBottlesCtrl = TextEditingController();
 
   @override
@@ -72,14 +68,19 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
 
   insertData() {
     selectedShopId = widget.shop?["shopId"] ?? "";
-    selectedShopName = widget.shop?["shopName"] ?? "";
+    selectShopNameCtrl.text = widget.shop?["shopName"] ?? "";
+    // selectedShopName = widget.shop?["shopName"] ?? "";
     noOfBottlesCtrl.text = widget.shop?["noOfBottles"] ?? "";
     selectedBrandOptionCtrl.text = widget.shop?["brandName"] ?? "";
     selectedBrand = widget.shop?["categoryName"] ?? "";
   }
 
+  // List<String> get allOptions => getProductBrandList?.map((e) => e.name ?? "").toList() ?? [];
+
   List<String> get allOptions =>
-      getProductBrandList?.map((e) => e.name ?? "").toList() ?? [];
+      getProductBrandList
+          ?.map((e) => "${e.name ?? ''} (${e.bottleSize ?? ''})")
+          .toList() ?? [];
 
   Future<void> getUserIdAndLoadData() async {
     final pref = await SharedPrefHelper.getInstance();
@@ -88,9 +89,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
     // String? _ = await fetchLocation();
 
     if (userId != null && userId!.isNotEmpty && mounted) {
-      context.read<AssignedShopListBloc>().add(
-        AssignedShopListEvent(userId: userId!),
-      );
+      context.read<AssignedShopListBloc>().add(AssignedShopListEvent(userId: userId!));
     } else {
       debugPrint("UserId is null or empty");
     }
@@ -105,13 +104,8 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
         BlocListener<AssignedShopListBloc, AssignedShopListState>(
           listener: (context, state) {
             if (state is AssignedShopListSuccess) {
-              assignedShopListData =
-                  state.assignedShopListResponseList.data ?? [];
-              shopNames =
-                  state.assignedShopListResponseList.data
-                      ?.map((e) => e.name ?? "")
-                      .toList() ??
-                  [];
+              assignedShopListData = state.assignedShopListResponseList.data ?? [];
+              shopNames = state.assignedShopListResponseList.data?.map((e) => e.name ?? "").toList() ?? [];
 
               debugPrint("shopLength---${shopNames.length}");
 
@@ -144,8 +138,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
               // shopNames = shopList?.map((e) => e.name ?? "").toList() ?? [];
               debugPrint("shoplist---${shopList?.last.name}");
               categories = createShopStockData?.categories ?? [];
-              categoryNames =
-                  categories?.map((e) => e.name ?? "").toList() ?? [];
+              categoryNames = categories?.map((e) => e.name ?? "").toList() ?? [];
               isLoad = false;
             } else if (state is GetBrandProductListSuccess) {
               _searchController.clear();
@@ -159,17 +152,11 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
             if (state is CreatePromotionLoading) {
               isLoad = true;
             } else if (state is CreatePromotionSuccess) {
-              Fluttertoast.showToast(
-                msg: "Promotion Added Successfully",
-                backgroundColor: CommonColor.logoBGColor,
-              );
+              Fluttertoast.showToast(msg: "Promotion Added Successfully", backgroundColor: CommonColor.logoBGColor);
               Navigator.pop(context);
               isLoad = false;
             } else if (state is UpdatePromotionSuccess) {
-              Fluttertoast.showToast(
-                msg: "Promotion Updated Successfully",
-                backgroundColor: CommonColor.logoBGColor,
-              );
+              Fluttertoast.showToast(msg: "Promotion Updated Successfully", backgroundColor: CommonColor.logoBGColor);
               Navigator.pop(context);
               // Navigator.pop(context);
               isLoad = false;
@@ -188,79 +175,157 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                 backgroundColor: Colors.white,
                 appBar: const CommonAppBar(title: "Add Promotion"),
                 body:
-                    isLoad ||
-                            (categoryNames.isEmpty == true) ||
-                            (shopList?.isEmpty == true)
+                    isLoad || (categoryNames.isEmpty == true) || (shopList?.isEmpty == true)
                         // true
                         ? Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Center(
-                              child: CircularProgressIndicator(
-                                color: CommonColor.logoBGColor,
-                              ),
-                            ),
+                            Center(child: CircularProgressIndicator(color: CommonColor.logoBGColor)),
                             SizedBox(height: 10),
                             Text("Fetching Data"),
                           ],
                         )
                         : SingleChildScrollView(
                           child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 20,
-                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                             child: Column(
                               children: [
                                 Text(
-                                  widget.comeFromPromoList ?? false
-                                      ? "Update promotion"
-                                      : "Add Promotion",
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold,
+                                  widget.comeFromPromoList ?? false ? "Update promotion" : "Add Promotion",
+                                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                                ),
+
+                                // SizedBox(height: 15),
+                                // _buildDropdown(
+                                //   enable: widget.comeFromPromoList ?? false ? false : true,
+                                //   hint: 'Select Shop',
+                                //   selectedValue: selectedShopName,
+                                //   items: assignedShopListData?.map((e) => e.name ?? "").toList() ?? [],
+                                //   // items: shopNames,
+                                //   onChanged: (value) {
+                                //     setState(() {
+                                //       selectedShopName = value ?? "";
+                                //
+                                //       final selectedShop = assignedShopListData?.where((shop) => shop.name == value).map((shop) => shop.id);
+                                //       selectedShopId = (selectedShop ?? '').toString().replaceAll('(', '').replaceAll(')', '');
+                                //
+                                //       debugPrint("Selected shop id: $selectedShopId");
+                                //     });
+                                //   },
+                                // ),
+                                SizedBox(height: 15),
+                                SizedBox(
+                                  width: double.infinity, // or any width you want
+                                  child: _buildSelectOptionField(
+                                    0,
+                                    selectShopNameCtrl.text,
+                                    () {
+                                      final List<String> allOptions = assignedShopListData?.map((e) => e.name ?? "").toList() ?? [];
+                                      List<String> filteredOptions = List.from(allOptions);
+                                      TextEditingController searchController = TextEditingController();
+
+                                      if (widget.comeFromPromoList ?? false) return;
+
+                                      showModalBottomSheet(
+                                        context: context,
+                                        isScrollControlled: true,
+                                        backgroundColor: Colors.white,
+                                        builder: (context) {
+                                          return StatefulBuilder(
+                                            builder: (context, setModalState) {
+                                              void filterOptions(String query) {
+                                                final lowerQuery = query.toLowerCase();
+
+                                                filteredOptions = allOptions.where((option) => option.toLowerCase().contains(lowerQuery)).toList();
+
+                                                // Sort: prioritize matches starting with query
+                                                filteredOptions.sort((a, b) {
+                                                  bool aStarts = a.toLowerCase().startsWith(lowerQuery);
+                                                  bool bStarts = b.toLowerCase().startsWith(lowerQuery);
+                                                  if (aStarts && !bStarts) return -1;
+                                                  if (!aStarts && bStarts) return 1;
+                                                  return 0;
+                                                });
+
+                                                setModalState(() {}); // ✅ refresh list
+                                              }
+
+                                              return SafeArea(
+                                                child: Padding(
+                                                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                                                  child: Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      const SizedBox(height: 16),
+                                                      Padding(
+                                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                                                        child: TextField(
+                                                          controller: searchController,
+                                                          decoration: const InputDecoration(
+                                                            labelText: "Search shop",
+                                                            prefixIcon: Icon(Icons.search),
+                                                            border: OutlineInputBorder(),
+                                                          ),
+                                                          onChanged: filterOptions, // ✅ Works now
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 12),
+                                                      Expanded(
+                                                        child:
+                                                            filteredOptions.isNotEmpty
+                                                                ? ListView.builder(
+                                                                  itemCount: filteredOptions.length,
+                                                                  itemBuilder: (context, i) {
+                                                                    final option = filteredOptions[i];
+                                                                    return ListTile(
+                                                                      title: Text(option),
+                                                                      onTap: () {
+                                                                        setState(() {
+                                                                          selectShopNameCtrl.text = option;
+
+                                                                          final selectedShop = assignedShopListData?.firstWhere(
+                                                                            (shop) =>
+                                                                                (shop.name?.trim().toLowerCase() ?? '') ==
+                                                                                option.trim().toLowerCase(),
+                                                                            orElse: () => AssignedShopListData(id: '', name: ''), // <-- same type
+                                                                          );
+
+                                                                          // then
+                                                                          selectedShopId = selectedShop?.id?.toString() ?? '';
+
+                                                                          debugPrint("✅ Selected shop id: $selectedShopId");
+                                                                        });
+                                                                        Navigator.pop(context);
+                                                                      },
+                                                                    );
+                                                                  },
+                                                                )
+                                                                : const Padding(
+                                                                  padding: EdgeInsets.all(20),
+                                                                  child: Text(
+                                                                    "No shops found. Please select a brand first.",
+                                                                    textAlign: TextAlign.center,
+                                                                  ),
+                                                                ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                      );
+                                    },
+                                    widget.comeFromPromoList ?? false,
+                                    "Select shop name",
                                   ),
                                 ),
-                                SizedBox(height: 15),
-                                _buildDropdown(
-                                  enable:
-                                      widget.comeFromPromoList ?? false
-                                          ? false
-                                          : true,
-                                  hint: 'Select Shop',
-                                  selectedValue: selectedShopName,
-                                  items:
-                                      assignedShopListData
-                                          ?.map((e) => e.name ?? "")
-                                          .toList() ??
-                                      [],
-                                  // items: shopNames,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedShopName = value ?? "";
-
-                                      final selectedShop = assignedShopListData
-                                          ?.where((shop) => shop.name == value)
-                                          .map((shop) => shop.id);
-                                      selectedShopId = (selectedShop ?? '')
-                                          .toString()
-                                          .replaceAll('(', '')
-                                          .replaceAll(')', '');
-
-                                      debugPrint(
-                                        "Selected shop id: $selectedShopId",
-                                      );
-                                    });
-                                  },
-                                ),
 
                                 SizedBox(height: 15),
                                 _buildDropdown(
-                                  enable:
-                                      widget.comeFromPromoList ?? false
-                                          ? false
-                                          : true,
+                                  enable: widget.comeFromPromoList ?? false ? false : true,
                                   hint: 'Select Brand',
                                   selectedValue: selectedBrand,
                                   items: categoryNames,
@@ -269,79 +334,57 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                                       selectedBrand = value ?? "";
                                     });
                                     if (value != null && value.isNotEmpty) {
-                                      context.read<SalesmanDashBoardBloc>().add(
-                                        GetBrandProductListEvent(
-                                          brandName: value,
-                                        ),
-                                      );
+                                      context.read<SalesmanDashBoardBloc>().add(GetBrandProductListEvent(brandName: value));
                                     }
                                   },
                                 ),
                                 SizedBox(height: 15),
                                 SizedBox(
-                                  width:
-                                      double.infinity, // or any width you want
+                                  width: double.infinity, // or any width you want
                                   child: _buildSelectOptionField(
                                     0,
                                     selectedBrandOptionCtrl.text,
                                     () {
                                       widget.comeFromPromoList ?? false
                                           ? null
-                                          : _openOptionsBottomSheet(
-                                            controller: selectedBrandOptionCtrl,
-                                            allOptions: allOptions,
-                                          );
+                                          : _openOptionsBottomSheet(controller: selectedBrandOptionCtrl, allOptions: allOptions);
                                     },
                                     widget.comeFromPromoList ?? false,
+                                    "Select an option",
 
                                     // () =>
                                   ),
                                 ),
+
                                 SizedBox(height: 15),
                                 CommonInputField(
                                   controller: noOfBottlesCtrl,
                                   hintText: "Enter number of bottles",
                                   keyboardType: TextInputType.number,
-                                  hintStyle: TextStyle(
-                                    color: CommonColor.black,
-                                    fontSize: 15,
-                                  ),
+                                  hintStyle: TextStyle(color: CommonColor.black, fontSize: 15),
                                 ),
                                 SizedBox(height: 25),
                                 CommonButton(
                                   width: double.infinity,
                                   onPressed: () {
-                                    if (selectedShopName?.isEmpty ??
-                                        false ||
-                                            selectedBrand.isEmpty ||
-                                            selectedBrandOptionCtrl
-                                                .text
-                                                .isEmpty ||
-                                            noOfBottlesCtrl.text.isEmpty ||
-                                            selectedShopId?.isEmpty == true) {
-                                      ToastService.showError(
-                                        "Please fill all mandatory fields",
-                                      );
-                                    } else if (widget.comeFromPromoList ??
-                                        false) {
+                                    if ((selectShopNameCtrl.text.isEmpty) ||
+                                        selectedBrand.isEmpty ||
+                                        selectedBrandOptionCtrl.text.isEmpty ||
+                                        noOfBottlesCtrl.text.isEmpty) {
+                                      ToastService.showError("Please fill all mandatory fields");
+                                    } else if (widget.comeFromPromoList ?? false) {
                                       context.read<CreatePromotionBloc>().add(
                                         UpdatePromotionEvent(
-                                          brandName:
-                                              widget.shop?["brandName"] ?? "",
-                                          promotionId: int.parse(
-                                            widget.promoId ?? "",
-                                          ),
-                                          noOfBottles: int.parse(
-                                            noOfBottlesCtrl.text,
-                                          ),
+                                          brandName: widget.shop?["brandName"] ?? "",
+                                          promotionId: int.parse(widget.promoId ?? ""),
+                                          noOfBottles: int.parse(noOfBottlesCtrl.text),
                                         ),
                                       );
                                     } else {
                                       context.read<CreatePromotionBloc>().add(
                                         CreatePromotionEvent(
                                           shopId: selectedShopId ?? "",
-                                          brandName:
-                                              selectedBrandOptionCtrl.text,
+                                          brandName: selectedBrandOptionCtrl.text,
                                           noOfBottles: noOfBottlesCtrl.text,
                                           salesmanId: userId ?? "",
                                           categoryName: selectedBrand,
@@ -350,10 +393,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                                     }
                                   },
                                   backgroundColor: CommonColor.logoBGColor,
-                                  text:
-                                      widget.comeFromPromoList ?? false
-                                          ? "Update promotion"
-                                          : "Add Promotion",
+                                  text: widget.comeFromPromoList ?? false ? "Update promotion" : "Add Promotion",
                                   isLoading: false,
                                   icon: Icons.done,
                                 ),
@@ -376,10 +416,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
     required ValueChanged<String?> onChanged,
     required bool enable,
   }) {
-    final String? validValue =
-        (selectedValue != null && items.contains(selectedValue))
-            ? selectedValue
-            : null;
+    final String? validValue = (selectedValue != null && items.contains(selectedValue)) ? selectedValue : null;
 
     return SizedBox(
       width: double.infinity,
@@ -388,10 +425,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
         decoration: InputDecoration(
           labelText: hint,
           labelStyle: TextStyle(color: enable ? Colors.black : Colors.grey),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 14,
-          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           // ✅ Border when enabled
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6),
@@ -406,57 +440,34 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
             borderSide: const BorderSide(color: CommonColor.black, width: 1.5),
           ),
           // ✅ Border when disabled
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(6),
-            borderSide: const BorderSide(color: Colors.grey, width: 1.0),
-          ),
+          disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: Colors.grey, width: 1.0)),
         ),
         isExpanded: true,
         icon: const Icon(Icons.keyboard_arrow_down),
         items:
             items.map((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(
-                  value,
-                  style: TextStyle(color: enable ? Colors.black : Colors.grey),
-                ),
-              );
+              return DropdownMenuItem<String>(value: value, child: Text(value, style: TextStyle(color: enable ? Colors.black : Colors.grey)));
             }).toList(),
         onChanged: enable ? onChanged : null, // Disable if false
       ),
     );
   }
 
-  Widget _buildSelectOptionField(
-    int index,
-    String selectedOption,
-    VoidCallback onTap,
-    bool enable,
-  ) {
+  Widget _buildSelectOptionField(int index, String selectedOption, VoidCallback onTap, bool enable, String hintText) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        decoration: BoxDecoration(
-          border: Border.all(color: (enable) ? Colors.grey : Colors.black),
-          borderRadius: BorderRadius.circular(4),
-        ),
+        decoration: BoxDecoration(border: Border.all(color: (enable) ? Colors.grey : Colors.black), borderRadius: BorderRadius.circular(4)),
         child: Text(
-          selectedOption.isNotEmpty ? selectedOption : "Select an option",
-          style: TextStyle(
-            color: (enable) ? Colors.grey : CommonColor.black,
-            fontSize: 15,
-          ),
+          selectedOption.isNotEmpty ? selectedOption : hintText,
+          style: TextStyle(color: (enable) ? Colors.grey : CommonColor.black, fontSize: 15),
         ),
       ),
     );
   }
 
-  void _openOptionsBottomSheet({
-    required TextEditingController controller,
-    required List<String> allOptions,
-  }) {
+  void _openOptionsBottomSheet({required TextEditingController controller, required List<String> allOptions, void Function()? onTap}) {
     List<String> filteredOptions = List.from(allOptions);
     TextEditingController searchController = TextEditingController();
 
@@ -489,25 +500,16 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
 
             return SafeArea(
               child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const SizedBox(height: 16),
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 20,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
                       child: TextField(
                         controller: searchController,
-                        decoration: const InputDecoration(
-                          labelText: "Search options",
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(),
-                        ),
+                        decoration: const InputDecoration(labelText: "Search options", prefixIcon: Icon(Icons.search), border: OutlineInputBorder()),
                         onChanged: filterOptions,
                       ),
                     ),
@@ -521,18 +523,18 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                                   final option = filteredOptions[i];
                                   return ListTile(
                                     title: Text(option),
-                                    onTap: () {
-                                      setState(() {
-                                        controller.text = option;
-                                      });
-                                      Navigator.pop(context);
-                                    },
+                                    onTap:
+                                        onTap ??
+                                        () {
+                                          setState(() {
+                                            controller.text = option;
+                                          });
+                                          Navigator.pop(context);
+                                        },
                                   );
                                 },
                               )
-                              : Text(
-                                "Options not available please select brand name first",
-                              ),
+                              : Text("Options not available please select brand name first"),
                     ),
                   ],
                 ),
